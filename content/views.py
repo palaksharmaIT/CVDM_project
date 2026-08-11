@@ -3,7 +3,11 @@ from rest_framework.permissions import IsAuthenticated
 
 from .models import Content
 from .serializers import ContentSerializer
-from services.content.version_service import create_version
+
+from services.content.content_service import (
+    create_content,
+    update_content,
+)
 
 
 class ContentViewSet(viewsets.ModelViewSet):
@@ -14,21 +18,24 @@ class ContentViewSet(viewsets.ModelViewSet):
         return Content.objects.select_related("created_by").all()
 
     def perform_create(self, serializer):
-        content = serializer.save(
-            created_by=self.request.user
-        )
-
-        create_version(
-            content=content,
+        create_content(
+            title=serializer.validated_data["title"],
+            body=serializer.validated_data["body"],
             user=self.request.user,
-            change_note="Initial version",
         )
 
     def perform_update(self, serializer):
-        content = serializer.save()
+        content = self.get_object()
 
-        create_version(
+        update_content(
             content=content,
+            title=serializer.validated_data.get(
+                "title",
+                content.title,
+            ),
+            body=serializer.validated_data.get(
+                "body",
+                content.body,
+            ),
             user=self.request.user,
-            change_note="Content updated",
         )
