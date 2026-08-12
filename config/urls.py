@@ -25,4 +25,5 @@ urlpatterns = [
     path("api/", include("content.urls")),
     path("api/", include("audit.urls")),
     path("api/", include("ai_review.urls")),
+    path("api/", include("workflow.urls")),
 ]

@@ -6,6 +6,7 @@ from content.models import Content
 from audit.models import AuditLog
 from services.audit.audit_service import create_audit_log
 from services.ai.ai_review_service import run_ai_review
+from services.workflow.assignment_service import complete_pending_assignments
 
 from .version_service import create_version
 
@@ -133,6 +134,8 @@ def approve_content(*, content, user):
         details="Content approved.",
     )
 
+    complete_pending_assignments(content=content, reviewer=user)
+
     return content
 
 
@@ -151,6 +154,8 @@ def reject_content(*, content, user):
         action=AuditLog.Action.REJECT,
         details="Content rejected.",
     )
+
+    complete_pending_assignments(content=content, reviewer=user)
 
     return content
 

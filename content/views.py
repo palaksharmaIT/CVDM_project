@@ -1,3 +1,5 @@
+from django.contrib.auth import get_user_model
+
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
@@ -14,6 +16,10 @@ from .permissions import (
 )
 
 from ai_review.serializers import AIReviewResultSerializer
+from workflow.serializers import (
+    AssignReviewerSerializer,
+    ReviewAssignmentSerializer,
+)
 
 from services.content.content_service import (
     create_content,
@@ -26,6 +32,10 @@ from services.content.content_service import (
 )
 from services.ai.ai_review_service import run_ai_review
 from services.content.diff_service import compute_version_diff
+from services.workflow.assignment_service import assign_reviewer
+
+
+User = get_user_model()
 
 
 class ContentViewSet(viewsets.ModelViewSet):
@@ -111,6 +121,7 @@ class ContentViewSet(viewsets.ModelViewSet):
                 "new_version": new_version.version_number,
             }
         )
+
     @action(
         detail=True,
         methods=["get"],
@@ -166,7 +177,7 @@ class ContentViewSet(viewsets.ModelViewSet):
         )
 
         return Response(diff)
-    
+
     @action(
         detail=True,
         methods=["post"],
@@ -212,6 +223,38 @@ class ContentViewSet(viewsets.ModelViewSet):
 
         return Response(
             AIReviewResultSerializer(result).data
+        )
+
+    @action(
+        detail=True,
+        methods=["post"],
+        url_path="assign-reviewer",
+        permission_classes=[IsAuthor | IsEditor | IsAdmin],
+    )
+    def assign_reviewer_action(self, request, pk=None):
+        """
+        Assigns a specific reviewer to this content. reviewer_id
+        must belong to a user in the Reviewer or Admin role.
+        """
+        content = self.get_object()
+
+        serializer = AssignReviewerSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        reviewer = User.objects.get(
+            id=serializer.validated_data["reviewer_id"]
+        )
+
+        assignment = assign_reviewer(
+            content=content,
+            reviewer=reviewer,
+            assigned_by=request.user,
+            note=serializer.validated_data.get("note", ""),
+        )
+
+        return Response(
+            ReviewAssignmentSerializer(assignment).data,
+            status=201,
         )
 
     @action(
