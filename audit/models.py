@@ -9,6 +9,7 @@ class AuditLog(models.Model):
         UPDATE = "update", "Update"
         VERSION_RESTORE = "version_restore", "Version Restore"
         SUBMIT_FOR_REVIEW = "submit_for_review", "Submit For Review"
+        AI_REVIEW = "ai_review", "AI Review"
         APPROVE = "approve", "Approve"
         REJECT = "reject", "Reject"
         PUBLISH = "publish", "Publish"

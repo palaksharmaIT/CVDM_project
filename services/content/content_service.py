@@ -5,6 +5,7 @@ from content.models import Content
 
 from audit.models import AuditLog
 from services.audit.audit_service import create_audit_log
+from services.ai.ai_review_service import run_ai_review
 
 from .version_service import create_version
 
@@ -101,6 +102,16 @@ def submit_for_review(*, content, user):
         user=user,
         action=AuditLog.Action.SUBMIT_FOR_REVIEW,
         details="Content submitted for review.",
+    )
+
+    latest_version = (
+        content.versions.order_by("-version_number").first()
+    )
+
+    run_ai_review(
+        content=content,
+        user=user,
+        content_version=latest_version,
     )
 
     return content

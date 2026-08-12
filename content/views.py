@@ -13,6 +13,8 @@ from .permissions import (
     CanApproveContent,
 )
 
+from ai_review.serializers import AIReviewResultSerializer
+
 from services.content.content_service import (
     create_content,
     update_content,
@@ -22,6 +24,8 @@ from services.content.content_service import (
     reject_content,
     publish_content,
 )
+from services.ai.ai_review_service import run_ai_review
+from services.content.diff_service import compute_version_diff
 
 
 class ContentViewSet(viewsets.ModelViewSet):
@@ -106,6 +110,108 @@ class ContentViewSet(viewsets.ModelViewSet):
                 "message": "Version restored successfully.",
                 "new_version": new_version.version_number,
             }
+        )
+    @action(
+        detail=True,
+        methods=["get"],
+        url_path="diff",
+    )
+    def diff(self, request, pk=None):
+        """
+        Compares two versions of this content, line by line.
+
+        GET .../diff/?to=<version_id>
+            Compares version <to> against the version right
+            before it.
+
+        GET .../diff/?from=<version_id>&to=<version_id>
+            Compares two specific versions.
+        """
+        content = self.get_object()
+
+        to_id = request.query_params.get("to")
+
+        if not to_id:
+            return Response(
+                {"detail": "'to' query param (version id) is required."},
+                status=400,
+            )
+
+        new_version = content.versions.filter(id=to_id).first()
+
+        if new_version is None:
+            return Response(
+                {"detail": "'to' version not found."},
+                status=404,
+            )
+
+        from_id = request.query_params.get("from")
+
+        if from_id:
+            old_version = content.versions.filter(id=from_id).first()
+
+            if old_version is None:
+                return Response(
+                    {"detail": "'from' version not found."},
+                    status=404,
+                )
+        else:
+            old_version = content.versions.filter(
+                version_number=new_version.version_number - 1
+            ).first()
+
+        diff = compute_version_diff(
+            old_version=old_version,
+            new_version=new_version,
+        )
+
+        return Response(diff)
+    
+    @action(
+        detail=True,
+        methods=["post"],
+        url_path="ai-review",
+    )
+    def ai_review(self, request, pk=None):
+        """
+        Manually (re-)runs the AI grammar/clarity review on the
+        content's current text. Useful for an Author who wants
+        feedback before submitting for human review.
+        """
+        content = self.get_object()
+
+        latest_version = (
+            content.versions.order_by("-version_number").first()
+        )
+
+        result = run_ai_review(
+            content=content,
+            user=request.user,
+            content_version=latest_version,
+        )
+
+        return Response(
+            AIReviewResultSerializer(result).data
+        )
+
+    @action(
+        detail=True,
+        methods=["get"],
+        url_path="ai-review/latest",
+    )
+    def latest_ai_review(self, request, pk=None):
+        content = self.get_object()
+
+        result = content.ai_reviews.first()
+
+        if result is None:
+            return Response(
+                {"detail": "No AI review has been run yet."},
+                status=404,
+            )
+
+        return Response(
+            AIReviewResultSerializer(result).data
         )
 
     @action(
