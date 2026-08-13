@@ -9,6 +9,12 @@ from services.ai.ai_review_service import run_ai_review
 from services.workflow.assignment_service import complete_pending_assignments
 
 from .version_service import create_version
+from services.notifications.notification_service import (
+    notify_content_rejected,
+    notify_review_submitted,
+    notify_content_approved,
+    notify_content_published,
+)
 
 
 @transaction.atomic
@@ -115,6 +121,17 @@ def submit_for_review(*, content, user):
         content_version=latest_version,
     )
 
+    # Notify all pending reviewers assigned to this content
+    assignments = content.review_assignments.filter(
+        status="pending"
+    )
+
+    for assignment in assignments:
+        notify_review_submitted(
+            reviewer=assignment.reviewer,
+            content=content,
+        )
+
     return content
 
 
@@ -134,7 +151,16 @@ def approve_content(*, content, user):
         details="Content approved.",
     )
 
-    complete_pending_assignments(content=content, reviewer=user)
+    complete_pending_assignments(
+        content=content,
+        reviewer=user,
+    )
+
+    # Notify the content author
+    notify_content_approved(
+        author=content.created_by,
+        content=content,
+    )
 
     return content
 
@@ -155,7 +181,16 @@ def reject_content(*, content, user):
         details="Content rejected.",
     )
 
-    complete_pending_assignments(content=content, reviewer=user)
+    complete_pending_assignments(
+        content=content,
+        reviewer=user,
+    )
+
+    # Notify the content author
+    notify_content_rejected(
+        author=content.created_by,
+        content=content,
+    )
 
     return content
 
@@ -179,6 +214,12 @@ def publish_content(*, content, user):
         user=user,
         action=AuditLog.Action.PUBLISH,
         details="Content published.",
+    )
+
+    # Notify the content author
+    notify_content_published(
+        author=content.created_by,
+        content=content,
     )
 
     return content

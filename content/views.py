@@ -52,6 +52,9 @@ class ContentViewSet(viewsets.ModelViewSet):
             body=serializer.validated_data["body"],
             user=self.request.user,
         )
+    def get_serializer_class(self):
+        if self.action == "assign_reviewer_action":
+            return AssignReviewerSerializer        
 
     def perform_update(self, serializer):
         content = self.get_object()
