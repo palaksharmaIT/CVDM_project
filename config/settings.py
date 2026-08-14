@@ -287,6 +287,8 @@ MIDDLEWARE = [
 
 
 ROOT_URLCONF = "config.urls"
+LOGIN_URL = "/api-auth/login/"
+LOGIN_REDIRECT_URL = "/dashboard/"
 
 
 # TEMPLATES

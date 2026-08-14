@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Review Content - CVDM</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #1f2937;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .top-bar h1 {
+            margin: 0;
+        }
+
+        .back-button {
+            text-decoration: none;
+            color: #2563eb;
+            font-weight: 600;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .content-title {
+            margin: 0 0 12px;
+            font-size: 28px;
+        }
+
+        .meta {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background: #fff3cd;
+            color: #856404;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .section-title {
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .content-body {
+            line-height: 1.7;
+            white-space: pre-wrap;
+            font-size: 16px;
+        }
+
+        .assignment-info {
+            line-height: 1.7;
+        }
+
+        .ai-review {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 18px;
+        }
+
+        .ai-score {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .ai-result {
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .empty {
+            color: #6b7280;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .button {
+            border: none;
+            padding: 11px 22px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .approve {
+            background: #16a34a;
+            color: white;
+        }
+
+        .reject {
+            background: #dc2626;
+            color: white;
+        }
+
+        .approve:hover {
+            background: #15803d;
+        }
+
+        .reject:hover {
+            background: #b91c1c;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="top-bar">
+
+        <h1>Review Content</h1>
+
+        <a
+            href="{% url 'dashboard' %}"
+            class="back-button"
+        >
+            ← Back to Dashboard
+        </a>
+
+    </div>
+
+
+    <!-- CONTENT -->
+
+    <div class="card">
+
+        <h2 class="content-title">
+            {{ content.title }}
+        </h2>
+
+        <div class="meta">
+
+            Author:
+            <strong>
+                {{ content.created_by.username }}
+            </strong>
+
+            &nbsp; · &nbsp;
+
+            {% if latest_version %}
+                Version:
+                <strong>
+                    {{ latest_version.version_number }}
+                </strong>
+            {% endif %}
+
+            &nbsp; · &nbsp;
+
+            <span class="status">
+                {{ content.status }}
+            </span>
+
+        </div>
+
+        <hr>
+
+        <h3>Content</h3>
+
+        <div class="content-body">
+            {{ content.body }}
+        </div>
+
+    </div>
+
+
+    <!-- ASSIGNMENT -->
+
+    <div class="card">
+
+        <h2 class="section-title">
+            📋 Review Assignment
+        </h2>
+
+        <div class="assignment-info">
+
+            <p>
+                <strong>Reviewer:</strong>
+                {{ assignment.reviewer.username }}
+            </p>
+
+            <p>
+                <strong>Assigned by:</strong>
+                {{ assignment.assigned_by.username }}
+            </p>
+
+            {% if assignment.note %}
+                <p>
+                    <strong>Note:</strong>
+                    {{ assignment.note }}
+                </p>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- AI REVIEW -->
+
+    <div class="card">
+
+        <h2 class="section-title">
+            🤖 AI Pre-Review
+        </h2>
+
+        {% if latest_ai_review %}
+
+            <div class="ai-review">
+
+                {% if latest_ai_review.score %}
+                    <div class="ai-score">
+                        Score: {{ latest_ai_review.score }}
+                    </div>
+                {% endif %}
+
+                <div class="ai-result">
+                    {{ latest_ai_review }}
+                </div>
+
+            </div>
+
+        {% else %}
+
+            <p class="empty">
+                No AI review has been generated yet.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- ACTIONS -->
+
+    <div class="card">
+
+        <h2 class="section-title">
+            Review Decision
+        </h2>
+
+        <form method="post">
+
+            {% csrf_token %}
+
+            <div class="actions">
+
+                <button
+                    type="submit"
+                    name="action"
+                    value="reject"
+                    class="button reject"
+                >
+                    ❌ Reject
+                </button>
+
+                <button
+                    type="submit"
+                    name="action"
+                    value="approve"
+                    class="button approve"
+                >
+                    ✅ Approve
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>
