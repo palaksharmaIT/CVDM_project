@@ -200,11 +200,13 @@ def publish_content(*, content, user):
 
     content.status = Content.Status.PUBLISHED
     content.published_at = timezone.now()
+    content.scheduled_at = None
 
     content.save(
         update_fields=[
             "status",
             "published_at",
+            "scheduled_at",
             "updated_at",
         ]
     )
@@ -223,3 +225,79 @@ def publish_content(*, content, user):
     )
 
     return content
+
+
+@transaction.atomic
+def schedule_content(*, content, user, scheduled_at):
+    """
+    Schedules approved content to be auto-published at a future
+    time. The content stays in "approved" status until the
+    scheduled time arrives — publish_due_scheduled_content() (run
+    periodically, e.g. via a management command / cron) does the
+    actual publish.
+    """
+
+    if content.status != Content.Status.APPROVED:
+        raise ValueError(
+            "Only approved content can be scheduled for publishing."
+        )
+
+    if scheduled_at <= timezone.now():
+        raise ValueError("scheduled_at must be in the future.")
+
+    content.scheduled_at = scheduled_at
+
+    content.save(
+        update_fields=["scheduled_at", "updated_at"]
+    )
+
+    create_audit_log(
+        content=content,
+        user=user,
+        action=AuditLog.Action.SCHEDULE_PUBLISH,
+        details=f"Scheduled to publish at {scheduled_at.isoformat()}.",
+    )
+
+    return content
+
+
+@transaction.atomic
+def cancel_scheduled_publish(*, content, user):
+
+    content.scheduled_at = None
+
+    content.save(
+        update_fields=["scheduled_at", "updated_at"]
+    )
+
+    create_audit_log(
+        content=content,
+        user=user,
+        action=AuditLog.Action.SCHEDULE_PUBLISH,
+        details="Cancelled scheduled publish.",
+    )
+
+    return content
+
+
+def publish_due_scheduled_content():
+    """
+    Publishes every approved piece of content whose scheduled_at
+    has arrived. Intended to be called periodically (management
+    command run via cron / task scheduler). Returns the list of
+    published Content objects.
+    """
+
+    due_items = Content.objects.filter(
+        status=Content.Status.APPROVED,
+        scheduled_at__isnull=False,
+        scheduled_at__lte=timezone.now(),
+    )
+
+    published = []
+
+    for content in due_items:
+        publish_content(content=content, user=content.created_by)
+        published.append(content)
+
+    return published

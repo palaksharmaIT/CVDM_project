@@ -29,6 +29,8 @@ from services.content.content_service import (
     approve_content,
     reject_content,
     publish_content,
+    schedule_content,
+    cancel_scheduled_publish,
 )
 from services.ai.ai_review_service import run_ai_review
 from services.content.diff_service import compute_version_diff
@@ -350,5 +352,78 @@ class ContentViewSet(viewsets.ModelViewSet):
                 "message": "Content published successfully.",
                 "status": content.status,
                 "published_at": content.published_at,
+            }
+        )
+
+    @action(
+        detail=True,
+        methods=["post"],
+        url_path="schedule",
+        permission_classes=[IsEditor | IsAdmin],
+    )
+    def schedule(self, request, pk=None):
+        content = self.get_object()
+
+        from django.utils.dateparse import parse_datetime
+        from django.utils import timezone
+
+        raw = request.data.get("scheduled_at")
+
+        if not raw:
+            return Response(
+                {"detail": "'scheduled_at' is required (ISO 8601 format)."},
+                status=400,
+            )
+
+        scheduled_at = parse_datetime(raw)
+
+        if scheduled_at is None:
+            return Response(
+                {"detail": "'scheduled_at' must be a valid ISO 8601 datetime."},
+                status=400,
+            )
+
+        if timezone.is_naive(scheduled_at):
+            scheduled_at = timezone.make_aware(scheduled_at)
+
+        try:
+            content = schedule_content(
+                content=content,
+                user=request.user,
+                scheduled_at=scheduled_at,
+            )
+        except ValueError as e:
+            return Response(
+                {"detail": str(e)},
+                status=400,
+            )
+
+        return Response(
+            {
+                "message": "Content scheduled for publishing.",
+                "status": content.status,
+                "scheduled_at": content.scheduled_at,
+            }
+        )
+
+    @action(
+        detail=True,
+        methods=["post"],
+        url_path="cancel-schedule",
+        permission_classes=[IsEditor | IsAdmin],
+    )
+    def cancel_schedule(self, request, pk=None):
+        content = self.get_object()
+
+        content = cancel_scheduled_publish(
+            content=content,
+            user=request.user,
+        )
+
+        return Response(
+            {
+                "message": "Scheduled publish cancelled.",
+                "status": content.status,
+                "scheduled_at": content.scheduled_at,
             }
         )

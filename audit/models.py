@@ -14,6 +14,7 @@ class AuditLog(models.Model):
         APPROVE = "approve", "Approve"
         REJECT = "reject", "Reject"
         PUBLISH = "publish", "Publish"
+        SCHEDULE_PUBLISH = "schedule_publish", "Schedule Publish"
 
     content = models.ForeignKey(
         "content.Content",

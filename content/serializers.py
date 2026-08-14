@@ -22,6 +22,7 @@ class ContentSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
             "published_at",
+            "scheduled_at",
         ]
         read_only_fields = [
             "created_by",
@@ -29,6 +30,7 @@ class ContentSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
             "published_at",
+            "scheduled_at",
         ]
 
 

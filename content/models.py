@@ -27,13 +27,18 @@ class Content(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     published_at = models.DateTimeField(
-            null=True,
-            blank=True,
-        )
+        null=True,
+        blank=True,
+    )
+
+    scheduled_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="If set, this content will be auto-published at this time.",
+    )
 
     class Meta:
         ordering = ["-updated_at"]
 
     def __str__(self):
         return self.title
-

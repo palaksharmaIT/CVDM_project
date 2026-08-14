@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ content.title }} — CVDM</title>
+
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: Arial, sans-serif; background: #f4f6f8; color: #222; }
+        .page { padding: 30px; max-width: 1100px; margin: auto; }
+
+        .back-link { display: inline-block; margin-bottom: 16px; color: #2563eb; text-decoration: none; font-size: 14px; }
+        .back-link:hover { text-decoration: underline; }
+
+        .top-row { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+        h1 { margin: 0; }
+
+        .status {
+            font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.04em;
+            padding: 4px 10px; border-radius: 20px;
+        }
+        .status-draft { background: #e5e7eb; color: #374151; }
+        .status-in_review { background: #fef3c7; color: #92400e; }
+        .status-approved { background: #dcfce7; color: #166534; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+        .status-published { background: #dbeafe; color: #1e40af; }
+
+        .meta-line { color: #777; font-size: 13px; margin-bottom: 22px; }
+
+        .messages { margin-bottom: 16px; }
+        .msg { padding: 10px 14px; border-radius: 8px; font-size: 14px; margin-bottom: 8px; }
+        .msg-success { background: #dcfce7; color: #166534; }
+        .msg-error { background: #fee2e2; color: #991b1b; }
+
+        .grid { display: grid; grid-template-columns: 1fr 320px; gap: 20px; align-items: start; }
+
+        .card { background: white; padding: 22px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 18px; }
+        .card h2 { margin: 0 0 14px; font-size: 16px; }
+        .card h3 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; color: #888; letter-spacing: 0.05em; }
+
+        input[type="text"], textarea, input[type="number"], input[type="datetime-local"], select {
+            width: 100%; padding: 9px 11px; border: 1px solid #d1d5db; border-radius: 8px;
+            font-size: 14px; font-family: inherit; margin-bottom: 14px;
+        }
+        textarea { min-height: 260px; resize: vertical; }
+        textarea:disabled, input:disabled { background: #f3f4f6; color: #666; }
+
+        .btn {
+            padding: 9px 18px; border-radius: 8px; border: none; font-size: 13px; font-weight: 600;
+            cursor: pointer; margin-right: 8px; margin-bottom: 8px;
+        }
+        .btn-primary { background: #2563eb; color: white; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-success { background: #16a34a; color: white; }
+        .btn-success:hover { background: #15803d; }
+        .btn-danger { background: #dc2626; color: white; }
+        .btn-danger:hover { background: #b91c1c; }
+        .btn-outline { background: white; border: 1px solid #d1d5db; color: #333; }
+        .btn-outline:hover { background: #f3f4f6; }
+
+        .actions-row { padding-top: 14px; border-top: 1px solid #eee; margin-top: 4px; }
+
+        .ai-score-row { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+        .ai-score { font-size: 30px; font-weight: bold; color: #2563eb; }
+        .ai-score-label { color: #777; font-size: 12px; }
+        .ai-summary { color: #444; font-size: 13px; margin-bottom: 12px; }
+        .ai-issue { background: #fdf2f2; color: #7a2e2e; padding: 8px 12px; border-radius: 8px; font-size: 13px; margin-bottom: 6px; }
+        .ai-issue-type { display: block; font-size: 10px; text-transform: uppercase; color: #b34747; margin-bottom: 2px; }
+        .muted { color: #888; font-size: 13px; }
+
+        .version-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 13px; }
+        .version-item:last-child { border-bottom: none; }
+        .version-num { font-weight: 700; }
+        .version-note { color: #888; font-size: 12px; }
+
+        .assign-list { font-size: 12px; color: #666; margin-top: 10px; }
+        .assign-list div { padding: 4px 0; border-top: 1px dashed #eee; }
+
+        .inline-form { display: flex; gap: 8px; align-items: flex-end; }
+        .inline-form > div { flex: 1; }
+        .inline-form label { display: block; font-size: 11px; color: #777; margin-bottom: 4px; }
+    </style>
+</head>
+
+<body>
+<div class="page">
+    <a class="back-link" href="{% url 'content_list' %}">&larr; All content</a>
+
+    <div class="top-row">
+        <h1>{{ content.title }}</h1>
+        <span class="status status-{{ content.status }}">{{ content.get_status_display }}</span>
+    </div>
+    <div class="meta-line">
+        by {{ content.created_by.username }} · created {{ content.created_at|date:"d M Y" }}
+        {% if content.scheduled_at %} · scheduled for {{ content.scheduled_at|date:"d M Y, h:i A" }}{% endif %}
+    </div>
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="msg msg-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="grid">
+
+        <div>
+            <div class="card">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="text" name="title" value="{{ content.title }}" {% if not can_edit %}disabled{% endif %} />
+                    <textarea name="body" {% if not can_edit %}disabled{% endif %}>{{ content.body }}</textarea>
+
+                    <div class="actions-row">
+                        {% if can_edit %}
+                            <button type="submit" name="action" value="save" class="btn btn-primary">Save version</button>
+                            <button type="submit" name="action" value="run_ai" class="btn btn-outline">Run AI check</button>
+                        {% endif %}
+                        {% if can_submit %}
+                            <button type="submit" name="action" value="submit" class="btn btn-outline">Submit for review</button>
+                        {% endif %}
+                        {% if can_approve_reject %}
+                            <button type="submit" name="action" value="approve" class="btn btn-success">Approve</button>
+                            <button type="submit" name="action" value="reject" class="btn btn-danger">Reject</button>
+                        {% endif %}
+                        {% if can_publish %}
+                            <button type="submit" name="action" value="publish" class="btn btn-primary">Publish now</button>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+
+            {% if can_publish %}
+            <div class="card">
+                <h3>Scheduled publishing</h3>
+                {% if content.scheduled_at %}
+                    <p class="muted">Currently scheduled for {{ content.scheduled_at|date:"d M Y, h:i A" }}.</p>
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" name="action" value="cancel_schedule" class="btn btn-outline">Cancel schedule</button>
+                    </form>
+                {% else %}
+                    <form method="post" class="inline-form">
+                        {% csrf_token %}
+                        <div>
+                            <label for="scheduled_at">Publish at</label>
+                            <input type="datetime-local" id="scheduled_at" name="scheduled_at" required />
+                        </div>
+                        <button type="submit" name="action" value="schedule" class="btn btn-outline">Schedule</button>
+                    </form>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div>
+            <div class="card">
+                <h3>AI pre-review</h3>
+                {% if latest_ai_review and latest_ai_review.status == "completed" %}
+                    <div class="ai-score-row">
+                        <div class="ai-score">{{ latest_ai_review.score|default:"—" }}</div>
+                        <div class="ai-score-label">clarity score</div>
+                    </div>
+                    <p class="ai-summary">{{ latest_ai_review.summary }}</p>
+                    {% for issue in latest_ai_review.issues %}
+                        <div class="ai-issue">
+                            <span class="ai-issue-type">{{ issue.type }}</span>
+                            {{ issue.message }}
+                        </div>
+                    {% empty %}
+                        <p class="muted">No issues flagged.</p>
+                    {% endfor %}
+                {% elif latest_ai_review and latest_ai_review.status == "failed" %}
+                    <p class="muted">AI review failed: {{ latest_ai_review.error_message }}</p>
+                {% else %}
+                    <p class="muted">No AI review yet.</p>
+                {% endif %}
+            </div>
+
+            {% if can_assign %}
+            <div class="card">
+                <h3>Assign reviewer</h3>
+                <form method="post">
+                    {% csrf_token %}
+                    <select name="reviewer_id" required>
+                        <option value="">Select a reviewer…</option>
+                        {% for reviewer in eligible_reviewers %}
+                            <option value="{{ reviewer.id }}">{{ reviewer.username }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="text" name="note" placeholder="Optional note" />
+                    <button type="submit" name="action" value="assign" class="btn btn-outline">Assign</button>
+                </form>
+                {% if assignments %}
+                    <div class="assign-list">
+                        {% for a in assignments %}
+                            <div>{{ a.reviewer.username }} — {{ a.get_status_display }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <div class="card">
+                <h3>Versions</h3>
+                {% for v in versions %}
+                    <div class="version-item">
+                        <div>
+                            <span class="version-num">v{{ v.version_number }}</span>
+                            <div class="version-note">{{ v.change_note|default:"—" }}</div>
+                        </div>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="version_id" value="{{ v.id }}" />
+                            <button type="submit" name="action" value="restore" class="btn btn-outline" style="padding:5px 10px;font-size:11px;">Restore</button>
+                        </form>
+                    </div>
+                {% empty %}
+                    <p class="muted">No versions yet.</p>
+                {% endfor %}
+
+                {% if versions|length >= 2 %}
+                    <a class="btn btn-outline" style="display:block;text-align:center;margin-top:10px;" href="{% url 'content_diff' content.id %}">Compare versions</a>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>
