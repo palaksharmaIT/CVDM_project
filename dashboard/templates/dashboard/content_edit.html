@@ -5,91 +5,119 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ content.title }} — CVDM</title>
 
-    <style>
-        * { box-sizing: border-box; }
-        body { margin: 0; font-family: Arial, sans-serif; background: #f4f6f8; color: #222; }
-        .page { padding: 30px; max-width: 1100px; margin: auto; }
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-        .back-link { display: inline-block; margin-bottom: 16px; color: #2563eb; text-decoration: none; font-size: 14px; }
+    <style>
+        :root {
+            --ink: #20283a; --ink-soft: #57607a; --ink-faint: #8b93a8;
+            --paper: #eeece3; --card: #fbfaf5; --rule: #dbd7c9; --rule-strong: #b9b3a0;
+            --green: #1f6f5c; --green-bg: #dfeee7;
+            --red: #a3352a; --red-bg: #f5e2df;
+            --amber: #8a5a12; --amber-bg: #f3e6cc;
+            --gray: #5c5b54; --gray-bg: #e7e4d9;
+            --blue: #2a4c78; --blue-bg: #dfe7f2;
+            --font-display: "Lora", serif;
+            --font-sans: "IBM Plex Sans", sans-serif;
+            --font-mono: "IBM Plex Mono", monospace;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: var(--font-sans); background: var(--paper); color: var(--ink); }
+        .page { padding: 36px 40px 70px; max-width: 1120px; margin: auto; }
+
+        .back-link { display: inline-block; margin-bottom: 16px; color: var(--blue); text-decoration: none; font-size: 13px; font-weight: 500; }
         .back-link:hover { text-decoration: underline; }
+        .back-link::before { content: "← "; }
 
         .top-row { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
-        h1 { margin: 0; }
+        h1 { font-family: var(--font-display); font-weight: 700; margin: 0; font-size: 25px; }
 
-        .status {
-            font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.04em;
-            padding: 4px 10px; border-radius: 20px;
+        .stamp {
+            display: inline-block; font-family: var(--font-mono); font-size: 10px; font-weight: 500;
+            letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 10px;
+            border: 1.5px solid currentColor; border-radius: 3px; transform: rotate(-3deg); background: transparent;
         }
-        .status-draft { background: #e5e7eb; color: #374151; }
-        .status-in_review { background: #fef3c7; color: #92400e; }
-        .status-approved { background: #dcfce7; color: #166534; }
-        .status-rejected { background: #fee2e2; color: #991b1b; }
-        .status-published { background: #dbeafe; color: #1e40af; }
+        .stamp-draft { color: var(--gray); }
+        .stamp-in_review { color: var(--amber); }
+        .stamp-approved { color: var(--green); }
+        .stamp-rejected { color: var(--red); }
+        .stamp-published { color: var(--blue); }
 
-        .meta-line { color: #777; font-size: 13px; margin-bottom: 22px; }
+        .meta-line { color: var(--ink-faint); font-size: 12px; font-family: var(--font-mono); margin-bottom: 26px; }
 
         .messages { margin-bottom: 16px; }
-        .msg { padding: 10px 14px; border-radius: 8px; font-size: 14px; margin-bottom: 8px; }
-        .msg-success { background: #dcfce7; color: #166534; }
-        .msg-error { background: #fee2e2; color: #991b1b; }
+        .msg { padding: 10px 14px; border-radius: 6px; font-size: 13px; margin-bottom: 8px; }
+        .msg-success { background: var(--green-bg); color: var(--green); }
+        .msg-error { background: var(--red-bg); color: var(--red); }
 
         .grid { display: grid; grid-template-columns: 1fr 320px; gap: 20px; align-items: start; }
 
-        .card { background: white; padding: 22px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 18px; }
-        .card h2 { margin: 0 0 14px; font-size: 16px; }
-        .card h3 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; color: #888; letter-spacing: 0.05em; }
+        .card { background: var(--card); border: 1px solid var(--rule); padding: 22px; border-radius: 8px; margin-bottom: 16px; }
+        .card h3 { margin: 0 0 12px; font-size: 11px; text-transform: uppercase; color: var(--ink-faint); letter-spacing: 0.07em; font-weight: 600; }
 
-        input[type="text"], textarea, input[type="number"], input[type="datetime-local"], select {
-            width: 100%; padding: 9px 11px; border: 1px solid #d1d5db; border-radius: 8px;
-            font-size: 14px; font-family: inherit; margin-bottom: 14px;
+        input[type="text"] {
+            width: 100%; padding: 6px 2px 12px; border: none; border-bottom: 1px solid var(--rule);
+            font-family: var(--font-display); font-size: 20px; font-weight: 600; margin-bottom: 16px; background: transparent; color: var(--ink);
         }
-        textarea { min-height: 260px; resize: vertical; }
-        textarea:disabled, input:disabled { background: #f3f4f6; color: #666; }
+        input[type="text"]:focus { outline: none; border-bottom-color: var(--blue); }
+        input[type="text"]:disabled { color: var(--ink-soft); }
+
+        textarea {
+            width: 100%; min-height: 260px; resize: vertical; border: none; font-size: 14px; line-height: 1.75;
+            color: var(--ink); background: transparent; font-family: var(--font-sans); padding: 0; margin-bottom: 8px;
+        }
+        textarea:focus { outline: none; }
+        textarea:disabled { color: var(--ink-soft); }
+
+        input[type="number"], input[type="datetime-local"], select {
+            width: 100%; padding: 9px 11px; border: 1px solid var(--rule-strong); border-radius: 6px;
+            font-size: 13px; font-family: var(--font-sans); margin-bottom: 12px; background: #fff; color: var(--ink);
+        }
 
         .btn {
-            padding: 9px 18px; border-radius: 8px; border: none; font-size: 13px; font-weight: 600;
+            padding: 9px 18px; border-radius: 6px; border: none; font-size: 13px; font-weight: 600;
             cursor: pointer; margin-right: 8px; margin-bottom: 8px;
         }
-        .btn-primary { background: #2563eb; color: white; }
-        .btn-primary:hover { background: #1d4ed8; }
-        .btn-success { background: #16a34a; color: white; }
-        .btn-success:hover { background: #15803d; }
-        .btn-danger { background: #dc2626; color: white; }
-        .btn-danger:hover { background: #b91c1c; }
-        .btn-outline { background: white; border: 1px solid #d1d5db; color: #333; }
-        .btn-outline:hover { background: #f3f4f6; }
+        .btn-primary { background: var(--ink); color: var(--card); }
+        .btn-primary:hover { background: var(--blue); }
+        .btn-success { background: var(--green); color: #fff; }
+        .btn-success:hover { background: #17564a; }
+        .btn-danger { background: var(--red); color: #fff; }
+        .btn-danger:hover { background: #7f271e; }
+        .btn-outline { background: transparent; border: 1px solid var(--rule-strong); color: var(--ink); }
+        .btn-outline:hover { background: #fff; }
 
-        .actions-row { padding-top: 14px; border-top: 1px solid #eee; margin-top: 4px; }
+        .actions-row { padding-top: 14px; border-top: 1px solid var(--rule); margin-top: 4px; }
 
         .ai-score-row { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
-        .ai-score { font-size: 30px; font-weight: bold; color: #2563eb; }
-        .ai-score-label { color: #777; font-size: 12px; }
-        .ai-summary { color: #444; font-size: 13px; margin-bottom: 12px; }
-        .ai-issue { background: #fdf2f2; color: #7a2e2e; padding: 8px 12px; border-radius: 8px; font-size: 13px; margin-bottom: 6px; }
-        .ai-issue-type { display: block; font-size: 10px; text-transform: uppercase; color: #b34747; margin-bottom: 2px; }
-        .muted { color: #888; font-size: 13px; }
+        .ai-score { font-family: var(--font-mono); font-size: 30px; font-weight: 500; color: var(--blue); }
+        .ai-score-label { color: var(--ink-faint); font-size: 11px; }
+        .ai-summary { color: var(--ink-soft); font-size: 13px; margin-bottom: 12px; line-height: 1.55; }
+        .ai-issue { background: var(--amber-bg); color: #5a3d0c; padding: 8px 12px; border-radius: 6px; font-size: 12px; margin-bottom: 6px; }
+        .ai-issue-type { display: block; font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; color: var(--amber); margin-bottom: 2px; }
+        .muted { color: var(--ink-faint); font-size: 12px; }
 
-        .version-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 13px; }
+        .version-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--rule); font-size: 13px; }
         .version-item:last-child { border-bottom: none; }
-        .version-num { font-weight: 700; }
-        .version-note { color: #888; font-size: 12px; }
+        .version-num { font-family: var(--font-mono); font-weight: 600; }
+        .version-note { color: var(--ink-faint); font-size: 11px; }
 
-        .assign-list { font-size: 12px; color: #666; margin-top: 10px; }
-        .assign-list div { padding: 4px 0; border-top: 1px dashed #eee; }
+        .assign-list { font-size: 12px; color: var(--ink-soft); margin-top: 10px; font-family: var(--font-mono); }
+        .assign-list div { padding: 5px 0; border-top: 1px dashed var(--rule); }
 
         .inline-form { display: flex; gap: 8px; align-items: flex-end; }
         .inline-form > div { flex: 1; }
-        .inline-form label { display: block; font-size: 11px; color: #777; margin-bottom: 4px; }
+        .inline-form label { display: block; font-size: 10px; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 4px; }
     </style>
 </head>
 
 <body>
 <div class="page">
-    <a class="back-link" href="{% url 'content_list' %}">&larr; All content</a>
+    <a class="back-link" href="{% url 'content_list' %}">All content</a>
 
     <div class="top-row">
         <h1>{{ content.title }}</h1>
-        <span class="status status-{{ content.status }}">{{ content.get_status_display }}</span>
+        <span class="stamp stamp-{{ content.status }}">{{ content.get_status_display }}</span>
     </div>
     <div class="meta-line">
         by {{ content.created_by.username }} · created {{ content.created_at|date:"d M Y" }}

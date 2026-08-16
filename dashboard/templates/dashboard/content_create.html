@@ -5,54 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Draft — CVDM</title>
 
-    <style>
-        * { box-sizing: border-box; }
-        body { margin: 0; font-family: Arial, sans-serif; background: #f4f6f8; color: #222; }
-        .page { padding: 30px; max-width: 700px; margin: auto; }
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-        .back-link { display: inline-block; margin-bottom: 20px; color: #2563eb; text-decoration: none; font-size: 14px; }
+    <style>
+        :root {
+            --ink: #20283a; --ink-soft: #57607a; --ink-faint: #8b93a8;
+            --paper: #eeece3; --card: #fbfaf5; --rule: #dbd7c9; --rule-strong: #b9b3a0;
+            --red: #a3352a; --red-bg: #f5e2df;
+            --font-display: "Lora", serif;
+            --font-sans: "IBM Plex Sans", sans-serif;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: var(--font-sans); background: var(--paper); color: var(--ink); }
+        .page { padding: 36px 40px 70px; max-width: 680px; margin: auto; }
+
+        .back-link { display: inline-block; margin-bottom: 20px; color: #2a4c78; text-decoration: none; font-size: 13px; font-weight: 500; }
         .back-link:hover { text-decoration: underline; }
+        .back-link::before { content: "← "; }
+
+        h1 { font-family: var(--font-display); font-weight: 700; font-size: 24px; margin: 0 0 22px; }
 
         .messages { margin-bottom: 16px; }
-        .msg { padding: 10px 14px; border-radius: 8px; font-size: 14px; margin-bottom: 8px; }
-        .msg-error { background: #fee2e2; color: #991b1b; }
+        .msg { padding: 10px 14px; border-radius: 6px; font-size: 13px; margin-bottom: 8px; }
+        .msg-error { background: var(--red-bg); color: var(--red); }
 
-        .card {
-            background: white;
-            padding: 26px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
+        .card { background: var(--card); border: 1px solid var(--rule); padding: 28px; border-radius: 8px; }
 
-        label { display: block; font-size: 13px; color: #555; margin-bottom: 6px; font-weight: 600; }
-        input[type="text"], textarea {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: inherit;
-            margin-bottom: 18px;
+        label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-faint); margin-bottom: 7px; font-weight: 600; }
+        input[type="text"] {
+            width: 100%; padding: 10px 4px; border: none; border-bottom: 1px solid var(--rule-strong);
+            font-family: var(--font-display); font-size: 19px; font-weight: 600; margin-bottom: 22px; background: transparent; color: var(--ink);
         }
-        textarea { min-height: 200px; resize: vertical; }
+        input[type="text"]:focus { outline: none; border-bottom-color: var(--ink); }
 
-        .btn {
-            padding: 10px 22px;
-            border-radius: 8px;
-            border: none;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            background: #2563eb;
-            color: white;
+        textarea {
+            width: 100%; min-height: 220px; resize: vertical; padding: 12px; border: 1px solid var(--rule);
+            border-radius: 6px; font-size: 14px; font-family: var(--font-sans); margin-bottom: 22px; line-height: 1.6; color: var(--ink);
         }
-        .btn:hover { background: #1d4ed8; }
+        textarea:focus { outline: none; border-color: #2a4c78; }
+
+        .btn { padding: 10px 24px; border-radius: 6px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; background: var(--ink); color: var(--card); }
+        .btn:hover { background: #2a4c78; }
     </style>
 </head>
 
 <body>
 <div class="page">
-    <a class="back-link" href="{% url 'content_list' %}">&larr; All content</a>
+    <a class="back-link" href="{% url 'content_list' %}">All content</a>
 
     <h1>New draft</h1>
 

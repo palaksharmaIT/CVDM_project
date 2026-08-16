@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compare versions — {{ content.title }}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --ink: #20283a; --ink-soft: #57607a; --ink-faint: #8b93a8;
+            --paper: #eeece3; --card: #fbfaf5; --rule: #dbd7c9; --rule-strong: #b9b3a0;
+            --red: #a3352a; --blue: #2a4c78;
+            --font-display: "Lora", serif;
+            --font-sans: "IBM Plex Sans", sans-serif;
+            --font-mono: "IBM Plex Mono", monospace;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: var(--font-sans); background: var(--paper); color: var(--ink); }
+        .page { padding: 36px 40px 70px; max-width: 880px; margin: auto; }
+
+        .back-link { display: inline-block; margin-bottom: 16px; color: var(--blue); text-decoration: none; font-size: 13px; font-weight: 500; }
+        .back-link:hover { text-decoration: underline; }
+        .back-link::before { content: "← "; }
+
+        h1 { font-family: var(--font-display); font-weight: 700; font-size: 22px; margin: 0 0 20px; }
+
+        .toolbar {
+            background: var(--card); border: 1px solid var(--rule); padding: 14px 18px; border-radius: 8px;
+            margin-bottom: 22px; display: flex; align-items: center; gap: 10px; font-size: 13px;
+        }
+        select { padding: 7px 10px; border: 1px solid var(--rule-strong); border-radius: 6px; font-size: 12px; font-family: var(--font-mono); }
+        .btn { padding: 8px 18px; border-radius: 6px; border: none; background: var(--ink); color: var(--card); font-size: 12px; font-weight: 600; cursor: pointer; }
+        .btn:hover { background: var(--blue); }
+
+        .stats { display: flex; gap: 16px; margin-bottom: 14px; font-size: 12px; font-family: var(--font-mono); }
+        .stat-add { color: var(--blue); }
+        .stat-remove { color: var(--red); }
+
+        .sheet {
+            background: var(--card); border: 1px solid var(--rule); padding: 26px 30px; border-radius: 8px;
+            font-family: var(--font-mono); font-size: 13px; line-height: 2;
+        }
+        .line { display: flex; gap: 14px; }
+        .line-num { color: var(--ink-faint); width: 26px; text-align: right; flex-shrink: 0; user-select: none; }
+        .line-equal { color: var(--ink-soft); }
+        .line-delete { color: var(--red); text-decoration: line-through; text-decoration-thickness: 1.5px; }
+        .line-insert { color: var(--blue); text-decoration: underline; text-decoration-thickness: 1.5px; }
+
+        .empty { text-align: center; color: var(--ink-faint); padding: 40px 0; font-size: 13px; }
+    </style>
+</head>
+
+<body>
+<div class="page">
+    <a class="back-link" href="{% url 'content_edit' content.id %}">Back to draft</a>
+
+    <h1>Compare versions</h1>
+
+    <form method="get" class="toolbar">
+        <span>Compare</span>
+        <select name="from">
+            <option value="">(previous version)</option>
+            {% for v in versions %}
+                <option value="{{ v.id }}" {% if from_id == v.id|stringformat:"s" %}selected{% endif %}>v{{ v.version_number }}</option>
+            {% endfor %}
+        </select>
+        <span>to</span>
+        <select name="to">
+            {% for v in versions %}
+                <option value="{{ v.id }}" {% if to_id == v.id|stringformat:"s" %}selected{% endif %}>v{{ v.version_number }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn">Show changes</button>
+    </form>
+
+    {% if diff %}
+        <div class="stats">
+            <span class="stat-add">+{{ diff.stats.lines_added }} added</span>
+            <span class="stat-remove">-{{ diff.stats.lines_removed }} removed</span>
+        </div>
+
+        <div class="sheet">
+            {% for op in diff.title_diff %}
+                <div class="line line-{{ op.type }}"><span class="line-num">{{ forloop.counter }}</span><span>{{ op.line }}</span></div>
+            {% endfor %}
+            {% for op in diff.body_diff %}
+                <div class="line line-{{ op.type }}"><span class="line-num">{{ forloop.counter }}</span><span>{{ op.line }}</span></div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="empty">Pick two versions above and click "Show changes".</p>
+    {% endif %}
+</div>
+</body>
+</html>

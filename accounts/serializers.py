@@ -53,6 +53,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             "role",
         ]
 
+
     def validate_username(self, value):
         if User.objects.filter(username=value).exists():
             raise serializers.ValidationError(
@@ -72,3 +73,4 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.groups.add(group)
 
         return user
+    

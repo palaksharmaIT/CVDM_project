@@ -1,310 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review — {{ content.title }}</title>
 
-    <title>Review Content - CVDM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     <style>
-        * {
-            box-sizing: border-box;
+        :root {
+            --ink: #20283a; --ink-soft: #57607a; --ink-faint: #8b93a8;
+            --paper: #eeece3; --card: #fbfaf5; --rule: #dbd7c9; --rule-strong: #b9b3a0;
+            --green: #1f6f5c; --green-bg: #dfeee7;
+            --red: #a3352a; --red-bg: #f5e2df;
+            --amber: #8a5a12; --amber-bg: #f3e6cc;
+            --blue: #2a4c78; --blue-bg: #dfe7f2;
+            --font-display: "Lora", serif;
+            --font-sans: "IBM Plex Sans", sans-serif;
+            --font-mono: "IBM Plex Mono", monospace;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: var(--font-sans); background: var(--paper); color: var(--ink); }
+        .page { padding: 36px 40px 70px; max-width: 880px; margin: auto; }
+
+        .back-link { display: inline-block; margin-bottom: 20px; color: var(--blue); text-decoration: none; font-size: 13px; font-weight: 500; }
+        .back-link:hover { text-decoration: underline; }
+        .back-link::before { content: "← "; }
+
+        h1 { font-family: var(--font-display); font-weight: 600; margin: 0 0 6px; font-size: 24px; }
+        .meta-line { color: var(--ink-faint); font-size: 13px; font-family: var(--font-mono); margin-bottom: 22px; }
+
+        .card { background: var(--card); border: 1px solid var(--rule); padding: 24px; border-radius: 8px; margin-bottom: 18px; }
+        .card h2 {
+            margin: 0 0 16px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em;
+            color: var(--ink-faint); font-weight: 600;
         }
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
-            color: #1f2937;
+        .content-body { white-space: pre-wrap; line-height: 1.7; color: var(--ink); font-size: 15px; }
+
+        .assignment-note {
+            background: var(--amber-bg); color: var(--amber); padding: 12px 16px;
+            border-radius: 6px; font-size: 13px; margin-bottom: 20px; border-left: 3px solid var(--amber);
         }
 
-        .container {
-            max-width: 1000px;
-            margin: 40px auto;
-            padding: 0 20px;
+        .ai-score-row { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+        .ai-score { font-family: var(--font-mono); font-size: 34px; font-weight: 500; color: var(--blue); }
+        .ai-score-label { color: var(--ink-faint); font-size: 12px; }
+        .ai-summary { color: var(--ink-soft); margin-bottom: 14px; font-size: 14px; line-height: 1.6; }
+        .ai-issue { background: var(--amber-bg); color: #5a3d0c; padding: 10px 14px; border-radius: 6px; font-size: 13px; margin-bottom: 8px; }
+        .ai-issue-type {
+            display: block; font-family: var(--font-mono); font-size: 10px; text-transform: uppercase;
+            color: var(--amber); margin-bottom: 3px; letter-spacing: 0.06em;
         }
+        .ai-unavailable { color: var(--ink-faint); font-size: 13px; }
 
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
+        .version-line { font-size: 12px; color: var(--ink-faint); font-family: var(--font-mono); }
 
-        .top-bar h1 {
-            margin: 0;
-        }
-
-        .back-button {
-            text-decoration: none;
-            color: #2563eb;
-            font-weight: 600;
-        }
-
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .content-title {
-            margin: 0 0 12px;
-            font-size: 28px;
-        }
-
-        .meta {
-            color: #6b7280;
-            font-size: 14px;
-        }
-
-        .status {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 20px;
-            background: #fff3cd;
-            color: #856404;
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .section-title {
-            margin-top: 0;
-            margin-bottom: 15px;
-        }
-
-        .content-body {
-            line-height: 1.7;
-            white-space: pre-wrap;
-            font-size: 16px;
-        }
-
-        .assignment-info {
-            line-height: 1.7;
-        }
-
-        .ai-review {
-            background: #f8fafc;
-            border-radius: 10px;
-            padding: 18px;
-        }
-
-        .ai-score {
-            font-size: 28px;
-            font-weight: bold;
-            margin-bottom: 12px;
-        }
-
-        .ai-result {
-            white-space: pre-wrap;
-            line-height: 1.6;
-        }
-
-        .empty {
-            color: #6b7280;
-        }
-
-        .actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-        }
-
-        .button {
-            border: none;
-            padding: 11px 22px;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .approve {
-            background: #16a34a;
-            color: white;
-        }
-
-        .reject {
-            background: #dc2626;
-            color: white;
-        }
-
-        .approve:hover {
-            background: #15803d;
-        }
-
-        .reject:hover {
-            background: #b91c1c;
-        }
+        .actions { display: flex; gap: 10px; }
+        .btn { padding: 10px 24px; border-radius: 6px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; }
+        .btn-approve { background: var(--green); color: #fff; }
+        .btn-approve:hover { background: #17564a; }
+        .btn-reject { background: var(--red); color: #fff; }
+        .btn-reject:hover { background: #7f271e; }
     </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="page">
 
-    <div class="top-bar">
+    <a class="back-link" href="{% url 'dashboard' %}">Back to dashboard</a>
 
-        <h1>Review Content</h1>
+    <h1>{{ content.title }}</h1>
+    <div class="meta-line">by {{ content.created_by.username }} · status: {{ content.status }}</div>
 
-        <a
-            href="{% url 'dashboard' %}"
-            class="back-button"
-        >
-            ← Back to Dashboard
-        </a>
-
+    <div class="assignment-note">
+        You were assigned to review this by <strong>{{ assignment.assigned_by.username }}</strong>
+        on {{ assignment.assigned_at|date:"d M Y, h:i A" }}.
+        {% if assignment.note %} Note: {{ assignment.note }}{% endif %}
     </div>
 
-
-    <!-- CONTENT -->
-
     <div class="card">
-
-        <h2 class="content-title">
-            {{ content.title }}
-        </h2>
-
-        <div class="meta">
-
-            Author:
-            <strong>
-                {{ content.created_by.username }}
-            </strong>
-
-            &nbsp; · &nbsp;
-
-            {% if latest_version %}
-                Version:
-                <strong>
-                    {{ latest_version.version_number }}
-                </strong>
-            {% endif %}
-
-            &nbsp; · &nbsp;
-
-            <span class="status">
-                {{ content.status }}
-            </span>
-
-        </div>
-
-        <hr>
-
-        <h3>Content</h3>
-
-        <div class="content-body">
-            {{ content.body }}
-        </div>
-
-    </div>
-
-
-    <!-- ASSIGNMENT -->
-
-    <div class="card">
-
-        <h2 class="section-title">
-            📋 Review Assignment
-        </h2>
-
-        <div class="assignment-info">
-
-            <p>
-                <strong>Reviewer:</strong>
-                {{ assignment.reviewer.username }}
+        <h2>Content</h2>
+        <div class="content-body">{{ content.body }}</div>
+        {% if latest_version %}
+            <p class="version-line" style="margin-top:14px;">
+                Currently on version {{ latest_version.version_number }} ({{ latest_version.change_note|default:"No note" }})
             </p>
-
-            <p>
-                <strong>Assigned by:</strong>
-                {{ assignment.assigned_by.username }}
-            </p>
-
-            {% if assignment.note %}
-                <p>
-                    <strong>Note:</strong>
-                    {{ assignment.note }}
-                </p>
-            {% endif %}
-
-        </div>
-
-    </div>
-
-
-    <!-- AI REVIEW -->
-
-    <div class="card">
-
-        <h2 class="section-title">
-            🤖 AI Pre-Review
-        </h2>
-
-        {% if latest_ai_review %}
-
-            <div class="ai-review">
-
-                {% if latest_ai_review.score %}
-                    <div class="ai-score">
-                        Score: {{ latest_ai_review.score }}
-                    </div>
-                {% endif %}
-
-                <div class="ai-result">
-                    {{ latest_ai_review }}
-                </div>
-
-            </div>
-
-        {% else %}
-
-            <p class="empty">
-                No AI review has been generated yet.
-            </p>
-
         {% endif %}
-
     </div>
 
+    <div class="card">
+        <h2>AI pre-review</h2>
 
-    <!-- ACTIONS -->
+        {% if latest_ai_review and latest_ai_review.status == "completed" %}
+            <div class="ai-score-row">
+                <div class="ai-score">{{ latest_ai_review.score|default:"—" }}</div>
+                <div class="ai-score-label">clarity / grammar score</div>
+            </div>
+            <p class="ai-summary">{{ latest_ai_review.summary }}</p>
+            {% if latest_ai_review.issues %}
+                {% for issue in latest_ai_review.issues %}
+                    <div class="ai-issue">
+                        <span class="ai-issue-type">{{ issue.type }}</span>
+                        {{ issue.message }}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="ai-unavailable">No issues flagged.</p>
+            {% endif %}
+        {% elif latest_ai_review and latest_ai_review.status == "failed" %}
+            <p class="ai-unavailable">AI review could not run: {{ latest_ai_review.error_message }}</p>
+        {% else %}
+            <p class="ai-unavailable">No AI review has been run on this content yet.</p>
+        {% endif %}
+    </div>
 
     <div class="card">
-
-        <h2 class="section-title">
-            Review Decision
-        </h2>
-
+        <h2>Decision</h2>
         <form method="post">
-
             {% csrf_token %}
-
             <div class="actions">
-
-                <button
-                    type="submit"
-                    name="action"
-                    value="reject"
-                    class="button reject"
-                >
-                    ❌ Reject
-                </button>
-
-                <button
-                    type="submit"
-                    name="action"
-                    value="approve"
-                    class="button approve"
-                >
-                    ✅ Approve
-                </button>
-
+                <button type="submit" name="action" value="approve" class="btn btn-approve">Approve</button>
+                <button type="submit" name="action" value="reject" class="btn btn-reject">Reject</button>
             </div>
-
         </form>
-
     </div>
 
 </div>

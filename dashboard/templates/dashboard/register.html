@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create account — CVDM</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --ink: #20283a; --ink-soft: #57607a; --ink-faint: #8b93a8;
+            --paper: #eeece3; --card: #fbfaf5; --rule: #dbd7c9; --rule-strong: #b9b3a0;
+            --red: #a3352a; --red-bg: #f5e2df;
+            --blue: #2a4c78;
+            --font-display: "Lora", serif;
+            --font-sans: "IBM Plex Sans", sans-serif;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; font-family: var(--font-sans); background: var(--paper); color: var(--ink);
+            min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;
+        }
+
+        .card {
+            width: 380px; background: var(--card); border: 1px solid var(--rule);
+            border-radius: 10px; padding: 36px 32px;
+        }
+
+        .brand { text-align: center; margin-bottom: 26px; }
+        .brand-mark { font-family: var(--font-display); font-weight: 700; font-size: 30px; }
+        .brand-sub { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-faint); margin-top: 2px; }
+
+        .tabs { display: flex; border-bottom: 1px solid var(--rule); margin-bottom: 22px; }
+        .tabs a {
+            flex: 1; text-align: center; padding: 10px 0; font-size: 13px; font-weight: 500;
+            color: var(--ink-faint); text-decoration: none; border-bottom: 2px solid transparent; margin-bottom: -1px;
+        }
+        .tabs a.active { color: var(--ink); border-bottom-color: var(--blue); }
+
+        .messages { margin-bottom: 14px; }
+        .msg { padding: 9px 12px; border-radius: 6px; font-size: 13px; }
+        .msg-error { background: var(--red-bg); color: var(--red); }
+
+        form { display: flex; flex-direction: column; gap: 14px; }
+        label { display: flex; flex-direction: column; gap: 5px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); font-weight: 600; }
+        input, select {
+            border: 1px solid var(--rule-strong); border-radius: 6px; padding: 9px 10px; font-size: 14px;
+            background: #fff; color: var(--ink); font-family: var(--font-sans);
+        }
+        input:focus, select:focus { outline: none; border-color: var(--blue); }
+
+        .btn {
+            padding: 10px; border-radius: 6px; border: none; font-size: 13px; font-weight: 600;
+            cursor: pointer; background: var(--ink); color: var(--card); margin-top: 6px;
+        }
+        .btn:hover { background: var(--blue); }
+
+        .hint { font-size: 11px; color: var(--ink-faint); margin-top: 2px; }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <div class="brand">
+            <div class="brand-mark">CVDM</div>
+            <div class="brand-sub">the desk</div>
+        </div>
+
+        <div class="tabs">
+            <a href="{% url 'login' %}">Sign in</a>
+            <a href="{% url 'register' %}" class="active">Create account</a>
+        </div>
+
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="msg msg-{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <label>Username
+                <input type="text" name="username" required autofocus />
+            </label>
+
+            <label>Email
+                <input type="email" name="email" required />
+            </label>
+
+            <label>Password
+                <input type="password" name="password" required minlength="8" />
+                <span class="hint">At least 8 characters.</span>
+            </label>
+
+            <label>Role
+                <select name="role" required>
+                    <option value="">Select a role…</option>
+                    {% for role in roles %}
+                        <option value="{{ role }}">{{ role }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <button type="submit" class="btn">Create account</button>
+        </form>
+    </div>
+</body>
+</html>

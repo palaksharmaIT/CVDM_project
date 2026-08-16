@@ -3,142 +3,429 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Content — CVDM</title>
+    <title>CVDM Dashboard</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+            --ink: #20283a;
+            --ink-soft: #57607a;
+            --ink-faint: #8b93a8;
+            --paper: #eeece3;
+            --card: #fbfaf5;
+            --rule: #dbd7c9;
+            --rule-strong: #b9b3a0;
+            --green: #1f6f5c; --green-bg: #dfeee7;
+            --red: #a3352a; --red-bg: #f5e2df;
+            --amber: #8a5a12; --amber-bg: #f3e6cc;
+            --gray: #5c5b54; --gray-bg: #e7e4d9;
+            --blue: #2a4c78; --blue-bg: #dfe7f2;
+            --font-display: "Lora", serif;
+            --font-sans: "IBM Plex Sans", sans-serif;
+            --font-mono: "IBM Plex Mono", monospace;
+        }
+
         * { box-sizing: border-box; }
 
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
-            color: #222;
+            font-family: var(--font-sans);
+            background: var(--paper);
+            color: var(--ink);
         }
 
-        .page { padding: 30px; max-width: 1000px; margin: auto; }
-
-        .back-link {
-            display: inline-block;
-            margin-bottom: 20px;
-            color: #2563eb;
-            text-decoration: none;
-            font-size: 14px;
+        .dashboard {
+            padding: 36px 40px 70px;
+            max-width: 1180px;
+            margin: auto;
         }
-        .back-link:hover { text-decoration: underline; }
 
-        .top-row {
+        .masthead {
             display: flex;
+            align-items: baseline;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+            border-bottom: 2px solid var(--ink);
+            padding-bottom: 14px;
+            margin-bottom: 8px;
         }
 
-        .btn {
-            padding: 9px 18px;
-            border-radius: 8px;
-            border: none;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .btn-primary { background: #2563eb; color: white; }
-        .btn-primary:hover { background: #1d4ed8; }
-
-        .filters { margin-bottom: 18px; }
-        .filters a {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            color: #555;
-            text-decoration: none;
-            margin-right: 6px;
-            background: white;
-            border: 1px solid #e2e2e2;
-        }
-        .filters a.active { background: #2563eb; color: white; border-color: #2563eb; }
-
-        .messages { margin-bottom: 16px; }
-        .msg { padding: 10px 14px; border-radius: 8px; font-size: 14px; margin-bottom: 8px; }
-        .msg-success { background: #dcfce7; color: #166534; }
-        .msg-error { background: #fee2e2; color: #991b1b; }
-
-        .row {
-            background: white;
-            padding: 16px 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            text-decoration: none;
-            color: inherit;
-        }
-        .row:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.14); }
-
-        .row-title { font-weight: 600; margin: 0 0 4px; }
-        .row-meta { font-size: 13px; color: #888; margin: 0; }
-
-        .status {
-            font-size: 11px;
-            text-transform: uppercase;
+        .masthead-brand {
+            font-family: var(--font-display);
             font-weight: 700;
-            letter-spacing: 0.04em;
-            padding: 4px 10px;
-            border-radius: 20px;
+            font-size: 26px;
+            letter-spacing: 0.01em;
         }
-        .status-draft { background: #e5e7eb; color: #374151; }
-        .status-in_review { background: #fef3c7; color: #92400e; }
-        .status-approved { background: #dcfce7; color: #166534; }
-        .status-rejected { background: #fee2e2; color: #991b1b; }
-        .status-published { background: #dbeafe; color: #1e40af; }
 
-        .empty { text-align: center; color: #888; padding: 60px 0; }
+        .masthead-sub {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: var(--ink-faint);
+        }
+
+        .masthead-user { text-align: right; }
+        .masthead-user-name {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ink);
+        }
+        .masthead-user-role {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--blue);
+            background: var(--blue-bg);
+            padding: 2px 9px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 4px;
+        }
+
+        .view-all-link {
+            display: inline-block;
+            margin: 14px 0 28px;
+            color: var(--blue);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .view-all-link:hover { text-decoration: underline; }
+        .view-all-link::after { content: " →"; }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1px;
+            background: var(--rule);
+            border: 1px solid var(--rule);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 34px;
+        }
+
+        .card {
+            background: var(--card);
+            padding: 20px 18px;
+        }
+
+        .card h3 {
+            margin: 0 0 8px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--ink-faint);
+        }
+
+        .number {
+            font-family: var(--font-mono);
+            font-size: 30px;
+            font-weight: 500;
+            color: var(--ink);
+        }
+
+        .section { margin-top: 34px; }
+
+        .section-header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--rule-strong);
+        }
+
+        .section-header h2 {
+            margin: 0;
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 17px;
+        }
+
+        .notification-count {
+            background: var(--blue-bg);
+            color: var(--blue);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-family: var(--font-mono);
+        }
+
+        .notifications-list, .review-list, .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .notification-card, .review-card, .activity-card {
+            background: var(--card);
+            padding: 16px 18px;
+            border: 1px solid var(--rule);
+            border-left: 3px solid var(--blue);
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-card h3, .review-card h3 {
+            margin: 0 0 6px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .notification-card p, .review-card p {
+            margin: 0 0 6px;
+            color: var(--ink-soft);
+            font-size: 13px;
+        }
+
+        .notification-card small, .review-card small, .activity-content small {
+            color: var(--ink-faint);
+            font-family: var(--font-mono);
+            font-size: 11px;
+        }
+
+        .unread-dot {
+            width: 9px;
+            height: 9px;
+            background: var(--red);
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .review-card { border-left-color: var(--amber); }
+
+        .status.pending {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border: 1.5px solid var(--amber);
+            color: var(--amber);
+            border-radius: 3px;
+            transform: rotate(-2deg);
+            background: transparent;
+        }
+
+        .review-actions { display: flex; align-items: center; gap: 10px; }
+
+        .review-button {
+            display: inline-block;
+            background: var(--ink);
+            color: var(--card);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .review-button:hover { background: var(--blue); }
+
+        .activity-card { border-left-color: var(--gray); align-items: flex-start; gap: 14px; }
+        .activity-icon { font-size: 16px; margin-top: 1px; }
+        .activity-content { flex: 1; }
+        .activity-content strong {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--blue);
+            display: block;
+            margin-bottom: 4px;
+        }
+        .activity-content p { margin: 0 0 5px; color: var(--ink-soft); font-size: 13px; }
+
+        .empty-state {
+            background: var(--card);
+            padding: 26px;
+            border-radius: 6px;
+            text-align: center;
+            color: var(--ink-faint);
+            border: 1px dashed var(--rule-strong);
+            font-size: 13px;
+        }
+
+        @media (max-width: 900px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) {
+            .dashboard { padding: 20px; }
+            .stats { grid-template-columns: 1fr; }
+            .review-card { flex-direction: column; align-items: flex-start; gap: 14px; }
+        }
     </style>
 </head>
 
 <body>
-<div class="page">
-    <a class="back-link" href="{% url 'dashboard' %}">&larr; Dashboard</a>
 
-    <div class="top-row">
-        <h1 style="margin:0;">All content</h1>
-        {% if can_create %}
-            <a class="btn btn-primary" href="{% url 'content_create' %}">+ New draft</a>
-        {% endif %}
-    </div>
+<div class="dashboard">
 
-    {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-                <div class="msg msg-{{ message.tags }}">{{ message }}</div>
-            {% endfor %}
+    <div class="masthead">
+        <div>
+            <div class="masthead-brand">CVDM</div>
+            <div class="masthead-sub">the desk</div>
         </div>
-    {% endif %}
-
-    <div class="filters">
-        <a href="?" class="{% if not status_filter %}active{% endif %}">All</a>
-        {% for value, label in status_choices %}
-            <a href="?status={{ value }}" class="{% if status_filter == value %}active{% endif %}">{{ label }}</a>
-        {% endfor %}
+        <div class="masthead-user">
+            <div class="masthead-user-name">{{ current_username }}</div>
+            <div class="masthead-user-role">
+                {% for role in current_roles %}{{ role }}{% if not forloop.last %}, {% endif %}{% empty %}No role assigned{% endfor %}
+            </div>
+            <a href="{% url 'logout' %}" style="font-size:11px;color:var(--ink-faint);text-decoration:none;display:inline-block;margin-top:6px;">Log out</a>
+        </div>
     </div>
 
-    {% if contents %}
-        {% for item in contents %}
-            <a class="row" href="{% url 'content_edit' item.id %}">
-                <div>
-                    <p class="row-title">{{ item.title }}</p>
-                    <p class="row-meta">by {{ item.created_by.username }} · updated {{ item.updated_at|date:"d M, h:i A" }}</p>
-                </div>
-                <span class="status status-{{ item.status }}">{{ item.get_status_display }}</span>
-            </a>
-        {% endfor %}
-    {% else %}
-        <p class="empty">Nothing here yet.</p>
-    {% endif %}
+    <a class="view-all-link" href="{% url 'content_list' %}">View all content</a>
+
+    <!-- ========================= -->
+    <!-- Content Statistics -->
+    <!-- ========================= -->
+
+    <div class="stats">
+
+        <div class="card">
+            <h3>Total Content</h3>
+            <div class="number">{{ total_content }}</div>
+        </div>
+
+        <div class="card">
+            <h3>Draft</h3>
+            <div class="number">{{ draft_count }}</div>
+        </div>
+
+        <div class="card">
+            <h3>In Review</h3>
+            <div class="number">{{ review_count }}</div>
+        </div>
+
+        <div class="card">
+            <h3>Approved</h3>
+            <div class="number">{{ approved_count }}</div>
+        </div>
+
+        <div class="card">
+            <h3>Published</h3>
+            <div class="number">{{ published_count }}</div>
+        </div>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- Notifications -->
+    <!-- ========================= -->
+
+    <div class="section">
+
+        <div class="section-header">
+            <h2>Notifications</h2>
+            <span class="notification-count">{{ unread_notification_count }} unread</span>
+        </div>
+
+        {% if unread_notifications %}
+            <div class="notifications-list">
+                {% for notification in unread_notifications %}
+                    <div class="notification-card">
+                        <div class="notification-content">
+                            <h3>{{ notification.content.title }}</h3>
+                            <p>{{ notification.message }}</p>
+                            <small>{{ notification.created_at|date:"d M Y, h:i A" }}</small>
+                        </div>
+                        <span class="unread-dot"></span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">No unread notifications.</div>
+        {% endif %}
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- My Review Queue -->
+    <!-- ========================= -->
+
+    <div class="section">
+
+        <div class="section-header">
+            <h2>My Review Queue</h2>
+            <span class="notification-count">{{ review_queue|length }} pending</span>
+        </div>
+
+        {% if review_queue %}
+            <div class="review-list">
+                {% for assignment in review_queue %}
+                    <div class="review-card">
+                        <div>
+                            <h3>{{ assignment.content.title }}</h3>
+                            <p>{{ assignment.note|default:"No note provided." }}</p>
+                            <small>
+                                Assigned by <strong>{{ assignment.assigned_by.username }}</strong>
+                                · {{ assignment.assigned_at|date:"d M Y, h:i A" }}
+                            </small>
+                        </div>
+                        <div class="review-actions">
+                            <a class="review-button" href="{% url 'review-content' assignment.content.id %}">Review</a>
+                            <span class="status pending">Pending</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">No pending reviews.</div>
+        {% endif %}
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- Recent Activity -->
+    <!-- ========================= -->
+
+    <div class="section">
+
+        <div class="section-header">
+            <h2>Recent Activity</h2>
+            <span class="notification-count">Latest 10</span>
+        </div>
+
+        {% if recent_activity %}
+            <div class="activity-list">
+                {% for activity in recent_activity %}
+                    <div class="activity-card">
+                        <div class="activity-content">
+                            <strong>
+                                {% if activity.action == "assign_reviewer" %}Reviewer Assigned
+                                {% elif activity.action == "approve" %}Content Approved
+                                {% elif activity.action == "reject" %}Content Rejected
+                                {% elif activity.action == "submit_for_review" %}Submitted for Review
+                                {% elif activity.action == "version_restore" %}Version Restored
+                                {% elif activity.action == "update" %}Content Updated
+                                {% elif activity.action == "ai_review" %}AI Review
+                                {% elif activity.action == "publish" %}Content Published
+                                {% elif activity.action == "schedule_publish" %}Schedule Publish
+                                {% elif activity.action == "create" %}Content Created
+                                {% else %}{{ activity.action|title }}
+                                {% endif %}
+                            </strong>
+                            <p>{{ activity.details }}</p>
+                            <small>{{ activity.user.username }} · {{ activity.created_at|date:"d M Y, h:i A" }}</small>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">No recent activity.</div>
+        {% endif %}
+
+    </div>
+
 </div>
+
 </body>
 </html>
