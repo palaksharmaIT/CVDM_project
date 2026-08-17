@@ -14,8 +14,9 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.conf import settings as dj_settings
-from django.core.mail import send_mail
+
 from django.urls import reverse
+import requests
 
 from accounts.models import EmailVerification
 
@@ -44,27 +45,69 @@ from services.workflow.assignment_service import assign_reviewer
 
 @login_required
 def dashboard(request):
-    contents = Content.objects.all()
+
+    user = request.user
+
+
+    if user.is_superuser:
+        dashboard_role = "Admin"
+    elif user.groups.filter(name="Reviewer").exists():
+        dashboard_role = "Reviewer"
+    elif user.groups.filter(name="Editor").exists():
+        dashboard_role = "Editor"
+    elif user.groups.filter(name="Author").exists():
+        dashboard_role = "Author"
+    else:
+        dashboard_role = "User"
+
+
+    if dashboard_role == "Admin":
+        contents = Content.objects.all()
+
+    elif dashboard_role == "Author":
+        contents = Content.objects.filter(
+            created_by=user
+        )
+
+    elif dashboard_role == "Reviewer":
+        contents = Content.objects.filter(
+            review_assignments__reviewer=user
+        ).distinct()
+
+    elif dashboard_role == "Editor":
+        contents = Content.objects.all()
+
+    else:
+        contents = Content.objects.filter(
+            created_by=user
+        )
+
 
     unread_notifications = (
         Notification.objects
         .filter(
-            user=request.user,
+            user=user,
             is_read=False,
         )
         .select_related("content")
         .order_by("-created_at")
     )
 
+
+
     review_queue = (
         ReviewAssignment.objects
         .filter(
-            reviewer=request.user,
+            reviewer=user,
             status=ReviewAssignment.Status.PENDING,
         )
-        .select_related("content", "assigned_by")
+        .select_related(
+            "content",
+            "assigned_by",
+        )
         .order_by("-assigned_at")
     )
+
 
     recent_activity = (
         AuditLog.objects
@@ -75,10 +118,40 @@ def dashboard(request):
                 details__startswith="AI pre-review failed:"
             )
         )
-    .order_by("-created_at")[:10]
-)
+    )
+
+
+
+    if dashboard_role == "Author":
+        recent_activity = recent_activity.filter(
+            content__created_by=user
+        )
+
+    elif dashboard_role == "Reviewer":
+        recent_activity = recent_activity.filter(
+            content__review_assignments__reviewer=user
+        ).distinct()
+
+    recent_activity = recent_activity.order_by(
+        "-created_at"
+    )[:10]
+
+
+    can_create = dashboard_role in [
+        "Admin",
+        "Author",
+    ]
+
+    can_assign = dashboard_role in [
+        "Admin",
+        "Author",
+        "Editor",
+    ]
+
 
     context = {
+        "dashboard_role": dashboard_role,
+
         "total_content": contents.count(),
 
         "draft_count": contents.filter(
@@ -104,10 +177,21 @@ def dashboard(request):
 
         "recent_activity": recent_activity,
 
-        "current_username": request.user.username,
+        "current_username": user.username,
+
         "current_roles": list(
-            request.user.groups.values_list("name", flat=True)
-        ) or (["Admin"] if request.user.is_superuser else []),
+            user.groups.values_list(
+                "name",
+                flat=True
+            )
+        ) or (
+            ["Admin"]
+            if user.is_superuser
+            else []
+        ),
+
+        "can_create": can_create,
+        "can_assign": can_assign,
     }
 
     return render(
@@ -144,6 +228,7 @@ def review_content(request, content_id):
         .order_by("-created_at")
         .first()
     )
+    
 
     if request.method == "POST":
 
@@ -448,12 +533,16 @@ def register_view(request):
 
         if not username or not password or not role:
             error = "All fields are required."
+
         elif not email:
             error = "Email is required for verification."
+
         elif User.objects.filter(username=username).exists():
             error = "A user with that username already exists."
+
         elif role not in dj_settings.CVDM_SELF_ASSIGNABLE_ROLES:
             error = "Please choose a valid role."
+
         else:
             try:
                 validate_password(password)
@@ -462,6 +551,7 @@ def register_view(request):
 
         if error:
             messages.error(request, error)
+
         else:
             user = User.objects.create_user(
                 username=username,
@@ -473,35 +563,194 @@ def register_view(request):
             group, _ = Group.objects.get_or_create(name=role)
             user.groups.add(group)
 
-            verification = EmailVerification.objects.create(user=user)
+            verification = EmailVerification.objects.create(
+                user=user
+            )
 
             verify_url = request.build_absolute_uri(
-                reverse("verify-email", args=[verification.token])
+                reverse(
+                    "verify-email",
+                    args=[verification.token]
+                )
             )
 
-            send_mail(
-                subject="Verify your CVDM account",
-                message=(
+            # ==========================================
+            # BREVO EMAIL API
+            # ==========================================
+
+            brevo_api_key = dj_settings.BREVO_API_KEY
+            brevo_sender_email = dj_settings.BREVO_SENDER_EMAIL
+            brevo_sender_name = dj_settings.BREVO_SENDER_NAME
+
+            email_payload = {
+                "sender": {
+                    "name": brevo_sender_name,
+                    "email": brevo_sender_email,
+                },
+                "to": [
+                    {
+                        "email": email,
+                        "name": username,
+                    }
+                ],
+                "subject": "Verify your CVDM account",
+
+                "textContent": (
                     f"Hi {username},\n\n"
-                    f"Click the link below to verify your email and "
-                    f"activate your CVDM account:\n\n{verify_url}\n\n"
-                    f"If you didn't request this, ignore this email."
+                    f"Click the link below to verify your email "
+                    f"and activate your CVDM account:\n\n"
+                    f"{verify_url}\n\n"
+                    f"If you didn't request this account, "
+                    f"you can ignore this email."
                 ),
-                from_email=dj_settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[email],
-                fail_silently=False,
-            )
+
+                "htmlContent": f"""
+                    <!DOCTYPE html>
+                    <html>
+                    <body style="
+                        font-family: Arial, sans-serif;
+                        color: #20283a;
+                        line-height: 1.6;
+                    ">
+
+                        <h2>Verify your CVDM account</h2>
+
+                        <p>Hi {username},</p>
+
+                        <p>
+                            Thanks for registering with CVDM.
+                            Please verify your email address
+                            to activate your account.
+                        </p>
+
+                        <p>
+                            <a href="{verify_url}"
+                               style="
+                                   display:inline-block;
+                                   padding:10px 18px;
+                                   background:#20283a;
+                                   color:#ffffff;
+                                   text-decoration:none;
+                                   border-radius:6px;
+                               ">
+                                Verify Email
+                            </a>
+                        </p>
+
+                        <p>
+                            If the button doesn't work, copy this
+                            link into your browser:
+                        </p>
+
+                        <p>{verify_url}</p>
+
+                        <p>
+                            If you didn't request this account,
+                            you can ignore this email.
+                        </p>
+
+                        <p>— CVDM</p>
+
+                    </body>
+                    </html>
+                """,
+            }
+
+            try:
+
+                brevo_response = requests.post(
+                    "https://api.brevo.com/v3/smtp/email",
+
+                    headers={
+                        "accept": "application/json",
+                        "api-key": brevo_api_key,
+                        "content-type": "application/json",
+                    },
+
+                    json=email_payload,
+
+                    timeout=10,
+                )
+
+                # Brevo returned an error
+                if not brevo_response.ok:
+
+                    print(
+                        "Brevo email error:",
+                        brevo_response.status_code,
+                        brevo_response.text,
+                    )
+
+                    # Don't leave an unusable account behind
+                    verification.delete()
+                    user.delete()
+
+                    messages.error(
+                        request,
+                        "We couldn't send the verification email. "
+                        "Please try again later.",
+                    )
+
+                    return render(
+                        request,
+                        "dashboard/register.html",
+                        {
+                            "roles": (
+                                dj_settings
+                                .CVDM_SELF_ASSIGNABLE_ROLES
+                            )
+                        },
+                    )
+
+            except requests.RequestException as exc:
+
+                print(
+                    "Brevo connection error:",
+                    exc,
+                )
+
+                # Clean up failed registration
+                verification.delete()
+                user.delete()
+
+                messages.error(
+                    request,
+                    "Email service is temporarily unavailable. "
+                    "Please try again later.",
+                )
+
+                return render(
+                    request,
+                    "dashboard/register.html",
+                    {
+                        "roles": (
+                            dj_settings
+                            .CVDM_SELF_ASSIGNABLE_ROLES
+                        )
+                    },
+                )
+
+            # ==========================================
+            # EMAIL SENT SUCCESSFULLY
+            # ==========================================
 
             return render(
                 request,
                 "dashboard/check_email.html",
-                {"email": email},
+                {
+                    "email": email
+                },
             )
 
     return render(
         request,
         "dashboard/register.html",
-        {"roles": dj_settings.CVDM_SELF_ASSIGNABLE_ROLES},
+        {
+            "roles": (
+                dj_settings
+                .CVDM_SELF_ASSIGNABLE_ROLES
+            )
+        },
     )
 
 

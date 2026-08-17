@@ -1,190 +1,585 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>CVDM Dashboard</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+        rel="stylesheet"
+    >
 
     <style>
         :root {
             --ink: #20283a;
             --ink-soft: #57607a;
             --ink-faint: #8b93a8;
+
             --paper: #eeece3;
             --card: #fbfaf5;
+
             --rule: #dbd7c9;
             --rule-strong: #b9b3a0;
-            --green: #1f6f5c; --green-bg: #dfeee7;
-            --red: #a3352a; --red-bg: #f5e2df;
-            --amber: #8a5a12; --amber-bg: #f3e6cc;
-            --gray: #5c5b54; --gray-bg: #e7e4d9;
-            --blue: #2a4c78; --blue-bg: #dfe7f2;
+
+            --green: #1f6f5c;
+            --green-bg: #dfeee7;
+
+            --red: #a3352a;
+            --red-bg: #f5e2df;
+
+            --amber: #8a5a12;
+            --amber-bg: #f3e6cc;
+
+            --gray: #5c5b54;
+            --gray-bg: #e7e4d9;
+
+            --blue: #2a4c78;
+            --blue-bg: #dfe7f2;
+
             --font-display: "Lora", serif;
             --font-sans: "IBM Plex Sans", sans-serif;
             --font-mono: "IBM Plex Mono", monospace;
         }
 
-        * { box-sizing: border-box; }
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
 
         body {
             margin: 0;
+            min-height: 100vh;
             font-family: var(--font-sans);
             background: var(--paper);
             color: var(--ink);
         }
 
-        .dashboard {
-            padding: 36px 40px 70px;
-            max-width: 1180px;
-            margin: auto;
+        a {
+            color: inherit;
         }
+
+        /* =========================================================
+           MAIN CONTAINER
+           ========================================================= */
+
+        .dashboard {
+            width: min(1180px, calc(100% - 48px));
+            margin: 0 auto;
+            padding: 32px 0 70px;
+        }
+
+        /* =========================================================
+           MASTHEAD
+           ========================================================= */
 
         .masthead {
             display: flex;
-            align-items: baseline;
+            align-items: flex-start;
             justify-content: space-between;
-            border-bottom: 2px solid var(--ink);
+            gap: 30px;
+
             padding-bottom: 14px;
-            margin-bottom: 8px;
+            border-bottom: 2px solid var(--ink);
         }
 
         .masthead-brand {
             font-family: var(--font-display);
-            font-weight: 700;
             font-size: 26px;
+            font-weight: 700;
+            line-height: 1;
             letter-spacing: 0.01em;
         }
 
         .masthead-sub {
+            margin-top: 5px;
             font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 0.18em;
             color: var(--ink-faint);
         }
 
-        .masthead-user { text-align: right; }
+        .masthead-user {
+            text-align: right;
+        }
+
         .masthead-user-name {
             font-family: var(--font-mono);
             font-size: 13px;
             font-weight: 500;
             color: var(--ink);
         }
+
         .masthead-user-role {
+            display: inline-block;
+            margin-top: 5px;
+            padding: 3px 9px;
+
+            background: var(--blue-bg);
+            color: var(--blue);
+
+            border-radius: 20px;
+
             font-size: 10px;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--blue);
-            background: var(--blue-bg);
-            padding: 2px 9px;
-            border-radius: 20px;
-            display: inline-block;
-            margin-top: 4px;
+            letter-spacing: 0.08em;
         }
+
+        .logout-link {
+            display: inline-block;
+            margin-top: 7px;
+
+            color: var(--ink-faint);
+            text-decoration: none;
+
+            font-size: 11px;
+        }
+
+        .logout-link:hover {
+            color: var(--ink);
+            text-decoration: underline;
+        }
+
+        /* =========================================================
+           VIEW ALL
+           ========================================================= */
 
         .view-all-link {
             display: inline-block;
-            margin: 14px 0 28px;
+            margin: 14px 0 24px;
+
             color: var(--blue);
             text-decoration: none;
+
             font-size: 13px;
             font-weight: 500;
         }
-        .view-all-link:hover { text-decoration: underline; }
-        .view-all-link::after { content: " →"; }
 
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 1px;
-            background: var(--rule);
+        .view-all-link:hover {
+            text-decoration: underline;
+        }
+
+        .view-all-link::after {
+            content: " →";
+        }
+
+        /* =========================================================
+           INTRO
+           ========================================================= */
+
+        .dashboard-intro {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 30px;
+
+            margin-bottom: 28px;
+            padding: 24px 26px;
+
+            background: var(--card);
             border: 1px solid var(--rule);
             border-radius: 8px;
-            overflow: hidden;
-            margin-bottom: 34px;
         }
 
-        .card {
-            background: var(--card);
-            padding: 20px 18px;
-        }
+        .dashboard-intro h1 {
+            margin: 0 0 7px;
 
-        .card h3 {
-            margin: 0 0 8px;
-            font-size: 11px;
+            font-family: var(--font-display);
+            font-size: 26px;
             font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .dashboard-intro p {
+            margin: 0;
+            max-width: 650px;
+
+            color: var(--ink-soft);
+
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .dashboard-actions {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-shrink: 0;
+        }
+
+        .primary-action,
+        .secondary-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            min-height: 38px;
+            padding: 9px 15px;
+
+            border-radius: 6px;
+
+            font-size: 12px;
+            font-weight: 500;
+            text-decoration: none;
+
+            transition:
+                background 0.15s ease,
+                border-color 0.15s ease,
+                color 0.15s ease;
+        }
+
+        .primary-action {
+            background: var(--ink);
+            color: var(--card);
+            border: 1px solid var(--ink);
+        }
+
+        .primary-action:hover {
+            background: var(--blue);
+            border-color: var(--blue);
+        }
+
+        .secondary-action {
+            background: var(--card);
+            color: var(--ink);
+            border: 1px solid var(--rule-strong);
+        }
+
+        .secondary-action:hover {
+            background: var(--paper);
+            border-color: var(--ink);
+        }
+
+        /* =========================================================
+           QUICK ACTIONS
+           ========================================================= */
+
+        .quick-actions {
+            margin-bottom: 30px;
+            padding: 18px 20px;
+
+            background: rgba(251, 250, 245, 0.72);
+            border: 1px solid var(--rule);
+            border-radius: 8px;
+        }
+
+        .quick-actions-title {
+            margin-bottom: 12px;
+
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 500;
+
             text-transform: uppercase;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.12em;
+
             color: var(--ink-faint);
         }
 
-        .number {
-            font-family: var(--font-mono);
-            font-size: 30px;
-            font-weight: 500;
-            color: var(--ink);
+        .quick-actions-list {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
         }
 
-        .section { margin-top: 34px; }
+        .quick-action {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+
+            min-height: 60px;
+            padding: 10px 13px;
+
+            background: var(--card);
+            color: var(--ink);
+
+            border: 1px solid var(--rule);
+            border-radius: 7px;
+
+            text-decoration: none;
+
+            transition:
+                background 0.15s ease,
+                border-color 0.15s ease;
+        }
+
+        .quick-action:hover {
+            background: #f5f3eb;
+            border-color: var(--rule-strong);
+        }
+
+        .quick-action-icon {
+            width: 32px;
+            height: 32px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            flex-shrink: 0;
+
+            border-radius: 6px;
+
+            background: var(--gray-bg);
+            color: var(--ink);
+
+            font-size: 16px;
+        }
+
+        .quick-action-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .quick-action strong {
+            display: block;
+            margin-bottom: 2px;
+
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .quick-action small {
+            display: block;
+
+            color: var(--ink-faint);
+
+            font-size: 10px;
+        }
+
+        .quick-action-arrow {
+            color: var(--ink-faint);
+            font-size: 15px;
+        }
+
+        .quick-action.primary {
+            background: var(--ink);
+            border-color: var(--ink);
+            color: var(--card);
+        }
+
+        .quick-action.primary:hover {
+            background: var(--blue);
+            border-color: var(--blue);
+        }
+
+        .quick-action.primary .quick-action-icon {
+            background: rgba(255, 255, 255, 0.12);
+            color: var(--card);
+        }
+
+        .quick-action.primary small,
+        .quick-action.primary .quick-action-arrow {
+            color: rgba(251, 250, 245, 0.65);
+        }
+
+        .quick-action.review {
+            border-left: 3px solid var(--amber);
+        }
+
+        .quick-action.review .quick-action-icon {
+            background: var(--amber-bg);
+            color: var(--amber);
+        }
+
+        /* =========================================================
+           STATISTICS
+           ========================================================= */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 1px;
+
+            margin-bottom: 36px;
+
+            background: var(--rule);
+            border: 1px solid var(--rule);
+            border-radius: 8px;
+
+            overflow: hidden;
+        }
+
+        .stat-card {
+            position: relative;
+
+            min-width: 0;
+            min-height: 116px;
+
+            padding: 20px 18px;
+
+            background: var(--card);
+            color: var(--ink);
+
+            text-decoration: none;
+
+            transition: background 0.15s ease;
+        }
+
+        .stat-card:hover {
+            background: #f5f3eb;
+        }
+
+        .stat-card:focus-visible {
+            outline: 2px solid var(--blue);
+            outline-offset: -2px;
+        }
+
+        .stat-card::after {
+            content: "";
+
+            position: absolute;
+            left: 18px;
+            right: 18px;
+            bottom: 0;
+
+            height: 2px;
+
+            background: var(--blue);
+
+            transform: scaleX(0);
+            transform-origin: left;
+
+            transition: transform 0.15s ease;
+        }
+
+        .stat-card:hover::after,
+        .stat-card:focus-visible::after {
+            transform: scaleX(1);
+        }
+
+        .stat-card h3 {
+            margin: 0 0 10px;
+
+            color: var(--ink-faint);
+
+            font-size: 10px;
+            font-weight: 600;
+
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .stat-card .number {
+            font-family: var(--font-mono);
+            font-size: 29px;
+            font-weight: 500;
+            line-height: 1;
+        }
+
+        .stat-card span {
+            display: block;
+            margin-top: 12px;
+
+            color: var(--blue);
+
+            font-size: 10px;
+        }
+
+        /* =========================================================
+           SECTIONS
+           ========================================================= */
+
+        .section {
+            margin-top: 38px;
+        }
 
         .section-header {
             display: flex;
-            align-items: baseline;
+            align-items: center;
             justify-content: space-between;
+            gap: 15px;
+
             margin-bottom: 14px;
-            padding-bottom: 8px;
+            padding-bottom: 9px;
+
             border-bottom: 1px solid var(--rule-strong);
         }
 
         .section-header h2 {
             margin: 0;
+
             font-family: var(--font-display);
-            font-weight: 600;
             font-size: 17px;
+            font-weight: 600;
         }
 
         .notification-count {
+            flex-shrink: 0;
+
+            padding: 4px 10px;
+
             background: var(--blue-bg);
             color: var(--blue);
-            padding: 4px 12px;
+
             border-radius: 20px;
-            font-size: 12px;
+
             font-family: var(--font-mono);
+            font-size: 10px;
         }
 
-        .notifications-list, .review-list, .activity-list {
+        /* =========================================================
+           LISTS
+           ========================================================= */
+
+        .notifications-list,
+        .review-list,
+        .activity-list {
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
 
-        .notification-card, .review-card, .activity-card {
-            background: var(--card);
+        /* =========================================================
+           NOTIFICATIONS
+           ========================================================= */
+
+        .notification-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+
             padding: 16px 18px;
+
+            background: var(--card);
+
             border: 1px solid var(--rule);
             border-left: 3px solid var(--blue);
             border-radius: 6px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
-        .notification-card h3, .review-card h3 {
+        .notification-content {
+            min-width: 0;
+        }
+
+        .notification-card h3 {
             margin: 0 0 6px;
+
             font-size: 15px;
             font-weight: 600;
+
+            overflow-wrap: anywhere;
         }
 
-        .notification-card p, .review-card p {
+        .notification-card p {
             margin: 0 0 6px;
+
             color: var(--ink-soft);
+
             font-size: 13px;
+            line-height: 1.5;
         }
 
-        .notification-card small, .review-card small, .activity-content small {
+        .notification-card small {
             color: var(--ink-faint);
+
             font-family: var(--font-mono);
             font-size: 11px;
         }
@@ -192,71 +587,315 @@
         .unread-dot {
             width: 9px;
             height: 9px;
+
+            flex-shrink: 0;
+
             background: var(--red);
             border-radius: 50%;
+        }
+
+        /* =========================================================
+           REVIEW QUEUE
+           ========================================================= */
+
+        .review-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+
+            padding: 16px 18px;
+
+            background: var(--card);
+
+            border: 1px solid var(--rule);
+            border-left: 3px solid var(--amber);
+            border-radius: 6px;
+        }
+
+        .review-card-content {
+            min-width: 0;
+        }
+
+        .review-card h3 {
+            margin: 0 0 6px;
+
+            font-size: 15px;
+            font-weight: 600;
+
+            overflow-wrap: anywhere;
+        }
+
+        .review-card p {
+            margin: 0 0 6px;
+
+            color: var(--ink-soft);
+
+            font-size: 13px;
+        }
+
+        .review-card small {
+            color: var(--ink-faint);
+
+            font-family: var(--font-mono);
+            font-size: 11px;
+        }
+
+        .review-card small strong {
+            color: var(--ink-soft);
+        }
+
+        .review-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
             flex-shrink: 0;
         }
 
-        .review-card { border-left-color: var(--amber); }
+        .review-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            min-height: 36px;
+            padding: 8px 14px;
+
+            background: var(--ink);
+            color: var(--card);
+
+            border-radius: 6px;
+
+            text-decoration: none;
+
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .review-button:hover {
+            background: var(--blue);
+        }
 
         .status.pending {
             display: inline-block;
-            font-family: var(--font-mono);
-            font-size: 10px;
-            font-weight: 500;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            padding: 4px 10px;
-            border: 1.5px solid var(--amber);
+
+            padding: 4px 9px;
+
             color: var(--amber);
-            border-radius: 3px;
-            transform: rotate(-2deg);
             background: transparent;
-        }
 
-        .review-actions { display: flex; align-items: center; gap: 10px; }
+            border: 1px solid var(--amber);
+            border-radius: 3px;
 
-        .review-button {
-            display: inline-block;
-            background: var(--ink);
-            color: var(--card);
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 500;
-        }
-        .review-button:hover { background: var(--blue); }
-
-        .activity-card { border-left-color: var(--gray); align-items: flex-start; gap: 14px; }
-        .activity-icon { font-size: 16px; margin-top: 1px; }
-        .activity-content { flex: 1; }
-        .activity-content strong {
             font-family: var(--font-mono);
-            font-size: 10px;
+            font-size: 9px;
+            font-weight: 500;
+
             text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: var(--blue);
+            letter-spacing: 0.08em;
+        }
+
+        /* =========================================================
+           ACTIVITY
+           ========================================================= */
+
+        .activity-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+
+            padding: 16px 18px;
+
+            background: var(--card);
+            color: inherit;
+
+            border: 1px solid var(--rule);
+            border-left: 3px solid var(--gray);
+            border-radius: 6px;
+
+            text-decoration: none;
+
+            transition:
+                background 0.15s ease,
+                border-color 0.15s ease;
+        }
+
+        .activity-card:hover {
+            background: #f5f3eb;
+            border-left-color: var(--blue);
+        }
+
+        .activity-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .activity-content strong {
             display: block;
             margin-bottom: 4px;
+
+            color: var(--blue);
+
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 500;
+
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
         }
-        .activity-content p { margin: 0 0 5px; color: var(--ink-soft); font-size: 13px; }
+
+        .activity-content p {
+            margin: 0 0 5px;
+
+            color: var(--ink-soft);
+
+            font-size: 13px;
+            line-height: 1.5;
+
+            overflow-wrap: anywhere;
+        }
+
+        .activity-content small {
+            color: var(--ink-faint);
+
+            font-family: var(--font-mono);
+            font-size: 11px;
+        }
+
+        .activity-arrow {
+            flex-shrink: 0;
+
+            color: var(--blue);
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        /* =========================================================
+           EMPTY STATE
+           ========================================================= */
 
         .empty-state {
-            background: var(--card);
             padding: 26px;
-            border-radius: 6px;
-            text-align: center;
-            color: var(--ink-faint);
+
+            background: var(--card);
+
             border: 1px dashed var(--rule-strong);
+            border-radius: 6px;
+
+            color: var(--ink-faint);
+
+            text-align: center;
             font-size: 13px;
         }
 
-        @media (max-width: 900px) { .stats { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 600px) {
-            .dashboard { padding: 20px; }
-            .stats { grid-template-columns: 1fr; }
-            .review-card { flex-direction: column; align-items: flex-start; gap: 14px; }
+        /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+
+        @media (max-width: 950px) {
+
+            .stats {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .quick-actions-list {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .dashboard {
+                width: min(100% - 32px, 1180px);
+                padding-top: 24px;
+            }
+
+            .masthead {
+                align-items: flex-start;
+            }
+
+            .dashboard-intro {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .dashboard-actions {
+                width: 100%;
+            }
+
+            .dashboard-actions a {
+                flex: 1;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .quick-actions-list {
+                grid-template-columns: 1fr;
+            }
+
+            .review-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .review-actions {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+
+            .dashboard {
+                width: calc(100% - 24px);
+                padding-top: 18px;
+            }
+
+            .masthead-brand {
+                font-size: 22px;
+            }
+
+            .masthead-sub {
+                font-size: 8px;
+            }
+
+            .masthead-user-name {
+                font-size: 11px;
+            }
+
+            .dashboard-intro {
+                padding: 20px;
+            }
+
+            .dashboard-intro h1 {
+                font-size: 22px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-card {
+                min-height: 100px;
+            }
+
+            .notification-card {
+                align-items: flex-start;
+            }
+
+            .review-actions {
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition: none !important;
+            }
         }
     </style>
 </head>
@@ -265,167 +904,575 @@
 
 <div class="dashboard">
 
-    <div class="masthead">
+    <!-- =========================================================
+         MASTHEAD
+         ========================================================= -->
+
+    <header class="masthead">
+
         <div>
             <div class="masthead-brand">CVDM</div>
             <div class="masthead-sub">the desk</div>
         </div>
+
         <div class="masthead-user">
-            <div class="masthead-user-name">{{ current_username }}</div>
-            <div class="masthead-user-role">
-                {% for role in current_roles %}{{ role }}{% if not forloop.last %}, {% endif %}{% empty %}No role assigned{% endfor %}
+
+            <div class="masthead-user-name">
+                {{ current_username }}
             </div>
-            <a href="{% url 'logout' %}" style="font-size:11px;color:var(--ink-faint);text-decoration:none;display:inline-block;margin-top:6px;">Log out</a>
+
+            <div class="masthead-user-role">
+                {% for role in current_roles %}
+                    {{ role }}{% if not forloop.last %}, {% endif %}
+                {% empty %}
+                    No role assigned
+                {% endfor %}
+            </div>
+
+            <a
+                href="{% url 'logout' %}"
+                class="logout-link"
+            >
+                Log out
+            </a>
+
         </div>
-    </div>
 
-    <a class="view-all-link" href="{% url 'content_list' %}">View all content</a>
+    </header>
 
-    <!-- ========================= -->
-    <!-- Content Statistics -->
-    <!-- ========================= -->
 
-    <div class="stats">
+    <!-- =========================================================
+         CONTENT LINK
+         ========================================================= -->
 
-        <div class="card">
+    <a
+        href="{% url 'content_list' %}"
+        class="view-all-link"
+    >
+        View all content
+    </a>
+
+
+    <!-- =========================================================
+         DASHBOARD INTRO
+         ========================================================= -->
+
+    <section class="dashboard-intro">
+
+        <div>
+
+            <h1>
+
+                {% if "Admin" in current_roles %}
+                    System Overview
+
+                {% elif "Reviewer" in current_roles %}
+                    Review Workspace
+
+                {% elif "Editor" in current_roles %}
+                    Editorial Workspace
+
+                {% elif "Author" in current_roles %}
+                    My Content
+
+                {% else %}
+                    Dashboard
+                {% endif %}
+
+            </h1>
+
+            <p>
+
+                {% if "Admin" in current_roles %}
+                    Monitor content, reviews, publishing and system activity.
+
+                {% elif "Reviewer" in current_roles %}
+                    Review assigned content and track pending approvals.
+
+                {% elif "Editor" in current_roles %}
+                    Manage approved content and publishing workflow.
+
+                {% elif "Author" in current_roles %}
+                    Create, edit and track your content.
+
+                {% else %}
+                    Manage your content activity.
+                {% endif %}
+
+            </p>
+
+        </div>
+
+
+        <div class="dashboard-actions">
+
+            {% if "Author" in current_roles or "Admin" in current_roles %}
+
+                <a
+                    href="{% url 'content_create' %}"
+                    class="primary-action"
+                >
+                    + Create Content
+                </a>
+
+            {% endif %}
+
+            <a
+                href="{% url 'content_list' %}"
+                class="secondary-action"
+            >
+                View Content
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================================
+         QUICK ACTIONS
+         ========================================================= -->
+
+    <section class="quick-actions">
+
+        <div class="quick-actions-title">
+            Quick Actions
+        </div>
+
+        <div class="quick-actions-list">
+
+            {% if "Author" in current_roles or "Admin" in current_roles %}
+
+                <a
+                    href="{% url 'content_create' %}"
+                    class="quick-action primary"
+                >
+
+                    <span class="quick-action-icon">
+                        +
+                    </span>
+
+                    <div class="quick-action-content">
+                        <strong>Create Content</strong>
+                        <small>Start a new draft</small>
+                    </div>
+
+                    <span class="quick-action-arrow">
+                        →
+                    </span>
+
+                </a>
+
+            {% endif %}
+
+
+            {% if review_queue %}
+
+                <a
+                    href="#review-queue"
+                    class="quick-action review"
+                >
+
+                    <span class="quick-action-icon">
+                        ✓
+                    </span>
+
+                    <div class="quick-action-content">
+                        <strong>Review Queue</strong>
+                        <small>{{ review_queue|length }} pending review{{ review_queue|length|pluralize }}</small>
+                    </div>
+
+                    <span class="quick-action-arrow">
+                        →
+                    </span>
+
+                </a>
+
+            {% endif %}
+
+
+            <a
+                href="{% url 'content_list' %}"
+                class="quick-action"
+            >
+
+                <span class="quick-action-icon">
+                    ≡
+                </span>
+
+                <div class="quick-action-content">
+                    <strong>All Content</strong>
+                    <small>Browse your content</small>
+                </div>
+
+                <span class="quick-action-arrow">
+                    →
+                </span>
+
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================================
+         CONTENT STATISTICS
+         ========================================================= -->
+
+    <section class="stats">
+
+        <a
+            href="{% url 'content_list' %}"
+            class="stat-card"
+        >
             <h3>Total Content</h3>
-            <div class="number">{{ total_content }}</div>
-        </div>
 
-        <div class="card">
+            <div class="number">
+                {{ total_content }}
+            </div>
+
+            <span>
+                View all →
+            </span>
+        </a>
+
+
+        <a
+            href="{% url 'content_list' %}?status=draft"
+            class="stat-card"
+        >
             <h3>Draft</h3>
-            <div class="number">{{ draft_count }}</div>
-        </div>
 
-        <div class="card">
+            <div class="number">
+                {{ draft_count }}
+            </div>
+
+            <span>
+                View drafts →
+            </span>
+        </a>
+
+
+        <a
+            href="{% url 'content_list' %}?status=in_review"
+            class="stat-card"
+        >
             <h3>In Review</h3>
-            <div class="number">{{ review_count }}</div>
-        </div>
 
-        <div class="card">
+            <div class="number">
+                {{ review_count }}
+            </div>
+
+            <span>
+                View reviews →
+            </span>
+        </a>
+
+
+        <a
+            href="{% url 'content_list' %}?status=approved"
+            class="stat-card"
+        >
             <h3>Approved</h3>
-            <div class="number">{{ approved_count }}</div>
-        </div>
 
-        <div class="card">
+            <div class="number">
+                {{ approved_count }}
+            </div>
+
+            <span>
+                View approved →
+            </span>
+        </a>
+
+
+        <a
+            href="{% url 'content_list' %}?status=published"
+            class="stat-card"
+        >
             <h3>Published</h3>
-            <div class="number">{{ published_count }}</div>
-        </div>
 
-    </div>
+            <div class="number">
+                {{ published_count }}
+            </div>
+
+            <span>
+                View published →
+            </span>
+        </a>
+
+    </section>
 
 
-    <!-- ========================= -->
-    <!-- Notifications -->
-    <!-- ========================= -->
+    <!-- =========================================================
+         NOTIFICATIONS
+         ========================================================= -->
 
-    <div class="section">
+    <section class="section">
 
         <div class="section-header">
-            <h2>Notifications</h2>
-            <span class="notification-count">{{ unread_notification_count }} unread</span>
+
+            <h2>
+                Notifications
+            </h2>
+
+            <span class="notification-count">
+                {{ unread_notification_count }} unread
+            </span>
+
         </div>
+
 
         {% if unread_notifications %}
+
             <div class="notifications-list">
+
                 {% for notification in unread_notifications %}
+
                     <div class="notification-card">
+
                         <div class="notification-content">
-                            <h3>{{ notification.content.title }}</h3>
-                            <p>{{ notification.message }}</p>
-                            <small>{{ notification.created_at|date:"d M Y, h:i A" }}</small>
+
+                            <h3>
+                                {{ notification.content.title }}
+                            </h3>
+
+                            <p>
+                                {{ notification.message }}
+                            </p>
+
+                            <small>
+                                {{ notification.created_at|date:"d M Y, h:i A" }}
+                            </small>
+
                         </div>
-                        <span class="unread-dot"></span>
+
+                        <span
+                            class="unread-dot"
+                            title="Unread notification"
+                        ></span>
+
                     </div>
+
                 {% endfor %}
+
             </div>
+
         {% else %}
-            <div class="empty-state">No unread notifications.</div>
+
+            <div class="empty-state">
+                No unread notifications.
+            </div>
+
         {% endif %}
 
-    </div>
+    </section>
 
 
-    <!-- ========================= -->
-    <!-- My Review Queue -->
-    <!-- ========================= -->
+    <!-- =========================================================
+         REVIEW QUEUE
+         ========================================================= -->
 
-    <div class="section">
+    <section
+        class="section"
+        id="review-queue"
+    >
 
         <div class="section-header">
-            <h2>My Review Queue</h2>
-            <span class="notification-count">{{ review_queue|length }} pending</span>
+
+            <h2>
+                My Review Queue
+            </h2>
+
+            <span class="notification-count">
+                {{ review_queue|length }} pending
+            </span>
+
         </div>
+
 
         {% if review_queue %}
+
             <div class="review-list">
+
                 {% for assignment in review_queue %}
+
                     <div class="review-card">
-                        <div>
-                            <h3>{{ assignment.content.title }}</h3>
-                            <p>{{ assignment.note|default:"No note provided." }}</p>
+
+                        <div class="review-card-content">
+
+                            <h3>
+                                {{ assignment.content.title }}
+                            </h3>
+
+                            <p>
+                                {{ assignment.note|default:"No note provided." }}
+                            </p>
+
                             <small>
-                                Assigned by <strong>{{ assignment.assigned_by.username }}</strong>
-                                · {{ assignment.assigned_at|date:"d M Y, h:i A" }}
+
+                                Assigned by
+                                <strong>
+                                    {{ assignment.assigned_by.username }}
+                                </strong>
+
+                                ·
+
+                                {{ assignment.assigned_at|date:"d M Y, h:i A" }}
+
                             </small>
+
                         </div>
+
+
                         <div class="review-actions">
-                            <a class="review-button" href="{% url 'review-content' assignment.content.id %}">Review</a>
-                            <span class="status pending">Pending</span>
+
+                            <a
+                                class="review-button"
+                                href="{% url 'review-content' assignment.content.id %}"
+                            >
+                                Open Review →
+                            </a>
+
+                            <span class="status pending">
+                                Pending
+                            </span>
+
                         </div>
+
                     </div>
+
                 {% endfor %}
+
             </div>
+
         {% else %}
-            <div class="empty-state">No pending reviews.</div>
+
+            <div class="empty-state">
+                No pending reviews.
+            </div>
+
         {% endif %}
 
-    </div>
+    </section>
 
 
-    <!-- ========================= -->
-    <!-- Recent Activity -->
-    <!-- ========================= -->
+    <!-- =========================================================
+         RECENT ACTIVITY
+         ========================================================= -->
 
-    <div class="section">
+    <section class="section">
 
         <div class="section-header">
-            <h2>Recent Activity</h2>
-            <span class="notification-count">Latest 10</span>
+
+            <h2>
+                Recent Activity
+            </h2>
+
+            <span class="notification-count">
+                Latest 10
+            </span>
+
         </div>
 
+
         {% if recent_activity %}
+
             <div class="activity-list">
+
                 {% for activity in recent_activity %}
-                    <div class="activity-card">
-                        <div class="activity-content">
-                            <strong>
-                                {% if activity.action == "assign_reviewer" %}Reviewer Assigned
-                                {% elif activity.action == "approve" %}Content Approved
-                                {% elif activity.action == "reject" %}Content Rejected
-                                {% elif activity.action == "submit_for_review" %}Submitted for Review
-                                {% elif activity.action == "version_restore" %}Version Restored
-                                {% elif activity.action == "update" %}Content Updated
-                                {% elif activity.action == "ai_review" %}AI Review
-                                {% elif activity.action == "publish" %}Content Published
-                                {% elif activity.action == "schedule_publish" %}Schedule Publish
-                                {% elif activity.action == "create" %}Content Created
-                                {% else %}{{ activity.action|title }}
-                                {% endif %}
-                            </strong>
-                            <p>{{ activity.details }}</p>
-                            <small>{{ activity.user.username }} · {{ activity.created_at|date:"d M Y, h:i A" }}</small>
-                        </div>
-                    </div>
+
+                    {% if activity.content %}
+
+                        <a
+                            href="{% url 'content_edit' activity.content.id %}"
+                            class="activity-card"
+                        >
+
+                            <div class="activity-content">
+
+                                <strong>
+
+                                    {% if activity.action == "assign_reviewer" %}
+                                        Reviewer Assigned
+
+                                    {% elif activity.action == "approve" %}
+                                        Content Approved
+
+                                    {% elif activity.action == "reject" %}
+                                        Content Rejected
+
+                                    {% elif activity.action == "submit_for_review" %}
+                                        Submitted for Review
+
+                                    {% elif activity.action == "version_restore" %}
+                                        Version Restored
+
+                                    {% elif activity.action == "update" %}
+                                        Content Updated
+
+                                    {% elif activity.action == "ai_review" %}
+                                        AI Review
+
+                                    {% elif activity.action == "publish" %}
+                                        Content Published
+
+                                    {% elif activity.action == "schedule_publish" %}
+                                        Schedule Publish
+
+                                    {% elif activity.action == "create" %}
+                                        Content Created
+
+                                    {% else %}
+                                        {{ activity.action|title }}
+
+                                    {% endif %}
+
+                                </strong>
+
+
+                                <p>
+                                    {{ activity.details }}
+                                </p>
+
+
+                                <small>
+
+                                    {{ activity.user.username }}
+
+                                    ·
+
+                                    {{ activity.created_at|date:"d M Y, h:i A" }}
+
+                                </small>
+
+                            </div>
+
+
+                            <span class="activity-arrow">
+                                →
+                            </span>
+
+                        </a>
+
+                    {% endif %}
+
                 {% endfor %}
+
             </div>
+
         {% else %}
-            <div class="empty-state">No recent activity.</div>
+
+            <div class="empty-state">
+                No recent activity.
+            </div>
+
         {% endif %}
 
-    </div>
+    </section>
 
 </div>
 
 </body>
 </html>
+```

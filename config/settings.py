@@ -16,8 +16,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
 
-# SECURITY
 
+
+# =========================
+# SECURITY
+# =========================
 
 SECRET_KEY = os.getenv(
     "SECRET_KEY",
@@ -25,6 +28,7 @@ SECRET_KEY = os.getenv(
 )
 
 DEBUG = os.getenv("DEBUG", "True").lower() == "true"
+
 
 ALLOWED_HOSTS = [
     h.strip()
@@ -35,11 +39,13 @@ ALLOWED_HOSTS = [
     if h.strip()
 ]
 
+
 RENDER_EXTERNAL_HOSTNAME = os.getenv("RENDER_EXTERNAL_HOSTNAME")
 
 if RENDER_EXTERNAL_HOSTNAME:
     if RENDER_EXTERNAL_HOSTNAME not in ALLOWED_HOSTS:
         ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
 
 CSRF_TRUSTED_ORIGINS = [
     o.strip()
@@ -50,16 +56,56 @@ CSRF_TRUSTED_ORIGINS = [
     if o.strip()
 ]
 
+
 if RENDER_EXTERNAL_HOSTNAME:
     render_origin = f"https://{RENDER_EXTERNAL_HOSTNAME}"
 
     if render_origin not in CSRF_TRUSTED_ORIGINS:
         CSRF_TRUSTED_ORIGINS.append(render_origin)
 
+
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+
+
+# =========================
+# EMAIL / SMTP
+# =========================
+
+EMAIL_BACKEND = os.getenv(
+    "EMAIL_BACKEND",
+    "django.core.mail.backends.smtp.EmailBackend",
+)
+
+EMAIL_HOST = os.getenv(
+    "EMAIL_HOST",
+    "smtp.gmail.com",
+)
+
+EMAIL_PORT = int(
+    os.getenv("EMAIL_PORT", "587")
+)
+
+EMAIL_USE_TLS = (
+    os.getenv("EMAIL_USE_TLS", "True").lower() == "true"
+)
+
+EMAIL_HOST_USER = os.getenv(
+    "EMAIL_HOST_USER",
+    "",
+)
+
+EMAIL_HOST_PASSWORD = os.getenv(
+    "EMAIL_HOST_PASSWORD",
+    "",
+)
+
+DEFAULT_FROM_EMAIL = os.getenv(
+    "DEFAULT_FROM_EMAIL",
+    EMAIL_HOST_USER,
+)
 
 
 # EMAIL
@@ -88,10 +134,6 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "no-reply@cvdm.local")
 
-ALLOWED_HOSTS = os.getenv(
-    "ALLOWED_HOSTS",
-    "127.0.0.1,localhost",
-).split(",")
 
 
 
