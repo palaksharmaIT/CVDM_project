@@ -26,10 +26,48 @@ SECRET_KEY = os.getenv(
 
 DEBUG = os.getenv("DEBUG", "True").lower() == "true"
 
+ALLOWED_HOSTS = [
+    h.strip()
+    for h in os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
+    if h.strip()
+]
+
+# Render sets RENDER_EXTERNAL_HOSTNAME automatically for the deployed
+# service — add it so the app works there without manual config.
+RENDER_EXTERNAL_HOSTNAME = os.getenv("RENDER_EXTERNAL_HOSTNAME")
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
+CSRF_TRUSTED_ORIGINS = [
+    o.strip()
+    for o in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if o.strip()
+]
+if RENDER_EXTERNAL_HOSTNAME:
+    CSRF_TRUSTED_ORIGINS.append(f"https://{RENDER_EXTERNAL_HOSTNAME}")
+
+# Production security (only enforced when DEBUG is off — i.e. once
+# deployed, not during local development)
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
 
 # EMAIL
 
-
+# Development default: prints emails to the terminal instead of
+# sending them, so registration/verification can be tested without
+# real SMTP credentials. For production, set these in your .env
+# (or hosting provider's environment variables) and switch
+# EMAIL_BACKEND to "django.core.mail.backends.smtp.EmailBackend":
+#
+#   EMAIL_HOST=smtp.gmail.com
+#   EMAIL_PORT=587
+#   EMAIL_USE_TLS=True
+#   EMAIL_HOST_USER=your@gmail.com
+#   EMAIL_HOST_PASSWORD=<app password>
+#   DEFAULT_FROM_EMAIL=your@gmail.com
 
 EMAIL_BACKEND = os.getenv(
     "EMAIL_BACKEND",
@@ -82,6 +120,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -133,11 +172,13 @@ ASGI_APPLICATION = "config.asgi.application"
 # DATABASE
 
 
+import dj_database_url
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600,
+    )
 }
 
 
@@ -193,9 +234,15 @@ STATIC_URL = "static/"
 
 STATICFILES_DIRS = [
     BASE_DIR / "static",
-]
+] if (BASE_DIR / "static").exists() else []
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 
 # MEDIA FILES
@@ -235,6 +282,9 @@ CVDM_ROLES = [
 ]
 
 # Roles a user is allowed to self-select at registration time.
+# "Admin" is intentionally excluded — admins should be promoted manually
+# (e.g. via Django admin or the create_roles + manage command flow),
+# not granted by anyone who fills in a signup form.
 CVDM_SELF_ASSIGNABLE_ROLES = [
     "Author",
     "Reviewer",
