@@ -4,6 +4,8 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from audit.models import AuditLog
+from audit.serializers import AuditLogSerializer
 
 from .models import Content
 from .serializers import ContentSerializer, ContentVersionSerializer
@@ -427,3 +429,25 @@ class ContentViewSet(viewsets.ModelViewSet):
                 "scheduled_at": content.scheduled_at,
             }
         )
+    
+    @action(
+    detail=True,
+    methods=["get"],
+    url_path="history",
+)
+    def history(self, request, pk=None):
+        content = self.get_object()
+
+        logs = AuditLog.objects.select_related(
+            "user",
+            "content",
+        ).filter(
+            content=content,
+        ).order_by("created_at")
+
+        serializer = AuditLogSerializer(
+            logs,
+            many=True,
+        )
+
+        return Response(serializer.data)

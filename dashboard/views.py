@@ -268,6 +268,7 @@ def content_edit(request, content_id):
                 latest_version = content.versions.order_by("-version_number").first()
                 run_ai_review(content=content, user=request.user, content_version=latest_version)
                 messages.success(request, "AI review complete.")
+                messages.info( request,"Content submitted for review." )
 
             elif action == "submit" and can_submit:
                 submit_for_review(content=content, user=request.user)

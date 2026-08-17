@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
 
-from .models import ReviewAssignment
+from .models import ReviewAssignment, ReviewComment
 
 
 User = get_user_model()
@@ -11,13 +11,18 @@ User = get_user_model()
 class ReviewAssignmentSerializer(serializers.ModelSerializer):
 
     reviewer_username = serializers.CharField(
-        source="reviewer.username", read_only=True
+        source="reviewer.username",
+        read_only=True,
     )
+
     assigned_by_username = serializers.CharField(
-        source="assigned_by.username", read_only=True
+        source="assigned_by.username",
+        read_only=True,
     )
+
     content_title = serializers.CharField(
-        source="content.title", read_only=True
+        source="content.title",
+        read_only=True,
     )
 
     class Meta:
@@ -35,21 +40,29 @@ class ReviewAssignmentSerializer(serializers.ModelSerializer):
             "assigned_at",
             "completed_at",
         ]
+
         read_only_fields = fields
 
 
 class AssignReviewerSerializer(serializers.Serializer):
 
     reviewer_id = serializers.IntegerField()
+
     note = serializers.CharField(
-        required=False, allow_blank=True, default=""
+        required=False,
+        allow_blank=True,
+        default="",
     )
 
     def validate_reviewer_id(self, value):
+
         try:
             user = User.objects.get(id=value)
+
         except User.DoesNotExist:
-            raise serializers.ValidationError("Reviewer not found.")
+            raise serializers.ValidationError(
+                "Reviewer not found."
+            )
 
         is_eligible = (
             user.is_superuser
@@ -64,3 +77,31 @@ class AssignReviewerSerializer(serializers.Serializer):
             )
 
         return value
+
+
+class ReviewCommentSerializer(serializers.ModelSerializer):
+
+    user_username = serializers.CharField(
+        source="user.username",
+        read_only=True,
+    )
+
+    class Meta:
+        model = ReviewComment
+
+        fields = [
+            "id",
+            "assignment",
+            "user",
+            "user_username",
+            "comment",
+            "created_at",
+        ]
+
+        read_only_fields = [
+            "id",
+            "assignment",
+            "user",
+            "user_username",
+            "created_at",
+        ]
