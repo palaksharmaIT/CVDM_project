@@ -1,3 +1,4 @@
+
 from pathlib import Path
 import os
 
@@ -8,37 +9,40 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# =========================
+# =========================================================
 # ENVIRONMENT VARIABLES
-# =========================
+# =========================================================
 
 load_dotenv(BASE_DIR / ".env")
 
 
-# =========================
+# =========================================================
 # SECURITY
-# =========================
+# =========================================================
 
 SECRET_KEY = os.getenv(
     "SECRET_KEY",
     "django-insecure-change-this-in-production",
 )
 
-DEBUG = os.getenv("DEBUG", "True").lower() == "true"
+DEBUG = os.getenv(
+    "DEBUG",
+    "True",
+).lower() == "true"
 
 
 ALLOWED_HOSTS = [
-    h.strip()
-    for h in os.getenv(
+    host.strip()
+    for host in os.getenv(
         "ALLOWED_HOSTS",
         "127.0.0.1,localhost",
     ).split(",")
-    if h.strip()
+    if host.strip()
 ]
 
 
 RENDER_EXTERNAL_HOSTNAME = os.getenv(
-    "RENDER_EXTERNAL_HOSTNAME"
+    "RENDER_EXTERNAL_HOSTNAME",
 )
 
 if RENDER_EXTERNAL_HOSTNAME:
@@ -69,45 +73,43 @@ if RENDER_EXTERNAL_HOSTNAME:
         )
 
 
+# Render terminates HTTPS before forwarding
+# the request to Gunicorn.
+SECURE_PROXY_SSL_HEADER = (
+    "HTTP_X_FORWARDED_PROTO",
+    "https",
+)
+
+
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
 
-# =========================
-# EMAIL / SMTP
-# =========================
+# =========================================================
+# BREVO EMAIL API
+# =========================================================
 
-EMAIL_BACKEND = (
-    "django.core.mail.backends.smtp.EmailBackend"
-)
-
-EMAIL_HOST = "smtp.gmail.com"
-
-EMAIL_PORT = 587
-
-EMAIL_USE_TLS = True
-
-EMAIL_HOST_USER = os.getenv(
-    "EMAIL_HOST_USER",
+BREVO_API_KEY = os.getenv(
+    "BREVO_API_KEY",
     "",
 )
 
-EMAIL_HOST_PASSWORD = os.getenv(
-    "EMAIL_HOST_PASSWORD",
+BREVO_SENDER_EMAIL = os.getenv(
+    "BREVO_SENDER_EMAIL",
     "",
 )
 
-DEFAULT_FROM_EMAIL = os.getenv(
-    "DEFAULT_FROM_EMAIL",
-    EMAIL_HOST_USER,
+BREVO_SENDER_NAME = os.getenv(
+    "BREVO_SENDER_NAME",
+    "CVDM",
 )
 
 
-# =========================
+# =========================================================
 # APPLICATIONS
-# =========================
+# =========================================================
 
 INSTALLED_APPS = [
     # Django
@@ -134,9 +136,9 @@ INSTALLED_APPS = [
 ]
 
 
-# =========================
+# =========================================================
 # MIDDLEWARE
-# =========================
+# =========================================================
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -150,9 +152,9 @@ MIDDLEWARE = [
 ]
 
 
-# =========================
+# =========================================================
 # URL CONFIGURATION
-# =========================
+# =========================================================
 
 ROOT_URLCONF = "config.urls"
 
@@ -161,9 +163,9 @@ LOGIN_URL = "/dashboard/login/"
 LOGIN_REDIRECT_URL = "/dashboard/"
 
 
-# =========================
+# =========================================================
 # TEMPLATES
-# =========================
+# =========================================================
 
 TEMPLATES = [
     {
@@ -171,7 +173,7 @@ TEMPLATES = [
             "django.template.backends.django.DjangoTemplates"
         ),
         "DIRS": [
-            BASE_DIR / "templates"
+            BASE_DIR / "templates",
         ],
         "APP_DIRS": True,
         "OPTIONS": {
@@ -191,18 +193,18 @@ TEMPLATES = [
 ]
 
 
-# =========================
+# =========================================================
 # WSGI / ASGI
-# =========================
+# =========================================================
 
 WSGI_APPLICATION = "config.wsgi.application"
 
 ASGI_APPLICATION = "config.asgi.application"
 
 
-# =========================
+# =========================================================
 # DATABASE
-# =========================
+# =========================================================
 
 DATABASES = {
     "default": dj_database_url.config(
@@ -214,9 +216,9 @@ DATABASES = {
 }
 
 
-# =========================
+# =========================================================
 # PASSWORD VALIDATION
-# =========================
+# =========================================================
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -246,9 +248,9 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# =========================
+# =========================================================
 # INTERNATIONALIZATION
-# =========================
+# =========================================================
 
 LANGUAGE_CODE = "en-us"
 
@@ -259,9 +261,9 @@ USE_I18N = True
 USE_TZ = True
 
 
-# =========================
+# =========================================================
 # STATIC FILES
-# =========================
+# =========================================================
 
 STATIC_URL = "static/"
 
@@ -283,27 +285,27 @@ STORAGES = {
 }
 
 
-# =========================
+# =========================================================
 # MEDIA FILES
-# =========================
+# =========================================================
 
 MEDIA_URL = "media/"
 
 MEDIA_ROOT = BASE_DIR / "media"
 
 
-# =========================
+# =========================================================
 # DEFAULT PRIMARY KEY
-# =========================
+# =========================================================
 
 DEFAULT_AUTO_FIELD = (
     "django.db.models.BigAutoField"
 )
 
 
-# =========================
+# =========================================================
 # DJANGO REST FRAMEWORK
-# =========================
+# =========================================================
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
@@ -316,9 +318,9 @@ REST_FRAMEWORK = {
 }
 
 
-# =========================
+# =========================================================
 # ROLES
-# =========================
+# =========================================================
 
 CVDM_ROLES = [
     "Author",
@@ -328,10 +330,12 @@ CVDM_ROLES = [
 ]
 
 
-# Users can choose these roles during registration.
-# Admin is intentionally excluded.
+# Admin is intentionally excluded from
+# self-registration.
+
 CVDM_SELF_ASSIGNABLE_ROLES = [
     "Author",
     "Reviewer",
     "Editor",
 ]
+

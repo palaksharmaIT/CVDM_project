@@ -1,3 +1,4 @@
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import (
     get_object_or_404,
@@ -26,11 +27,11 @@ from django.core.exceptions import (
     ValidationError as DjangoValidationError,
 )
 
-from django.core.mail import send_mail
-
 from django.conf import settings as dj_settings
 
 from django.urls import reverse
+
+import requests
 
 
 from accounts.models import EmailVerification
@@ -80,10 +81,6 @@ def dashboard(request):
 
     user = request.user
 
-    # -------------------------
-    # Determine role
-    # -------------------------
-
     if user.is_superuser:
         dashboard_role = "Admin"
 
@@ -105,9 +102,6 @@ def dashboard(request):
     else:
         dashboard_role = "User"
 
-    # -------------------------
-    # Content visibility
-    # -------------------------
 
     if dashboard_role == "Admin":
 
@@ -139,9 +133,6 @@ def dashboard(request):
             created_by=user
         )
 
-    # -------------------------
-    # Notifications
-    # -------------------------
 
     unread_notifications = (
         Notification.objects
@@ -153,9 +144,6 @@ def dashboard(request):
         .order_by("-created_at")
     )
 
-    # -------------------------
-    # Review queue
-    # -------------------------
 
     review_queue = (
         ReviewAssignment.objects
@@ -170,9 +158,6 @@ def dashboard(request):
         .order_by("-assigned_at")
     )
 
-    # -------------------------
-    # Recent activity
-    # -------------------------
 
     recent_activity = (
         AuditLog.objects
@@ -189,6 +174,7 @@ def dashboard(request):
             )
         )
     )
+
 
     if dashboard_role == "Author":
 
@@ -209,14 +195,12 @@ def dashboard(request):
             .distinct()
         )
 
+
     recent_activity = (
         recent_activity
         .order_by("-created_at")[:10]
     )
 
-    # -------------------------
-    # Permissions
-    # -------------------------
 
     can_create = dashboard_role in [
         "Admin",
@@ -229,9 +213,6 @@ def dashboard(request):
         "Editor",
     ]
 
-    # -------------------------
-    # Context
-    # -------------------------
 
     context = {
         "dashboard_role": dashboard_role,
@@ -284,6 +265,7 @@ def dashboard(request):
         "can_assign": can_assign,
     }
 
+
     return render(
         request,
         "dashboard/dashboard.html",
@@ -305,6 +287,7 @@ def review_content(request, content_id):
         id=content_id,
     )
 
+
     assignment = get_object_or_404(
         ReviewAssignment,
         content=content,
@@ -312,11 +295,13 @@ def review_content(request, content_id):
         status=ReviewAssignment.Status.PENDING,
     )
 
+
     latest_version = (
         content.versions
         .order_by("-version_number")
         .first()
     )
+
 
     latest_ai_review = (
         content.ai_reviews
@@ -324,11 +309,13 @@ def review_content(request, content_id):
         .first()
     )
 
+
     if request.method == "POST":
 
         action = request.POST.get(
             "action"
         )
+
 
         if action == "approve":
 
@@ -344,6 +331,7 @@ def review_content(request, content_id):
 
             return redirect("dashboard")
 
+
         if action == "reject":
 
             reject_content(
@@ -358,12 +346,14 @@ def review_content(request, content_id):
 
             return redirect("dashboard")
 
+
     context = {
         "content": content,
         "assignment": assignment,
         "latest_version": latest_version,
         "latest_ai_review": latest_ai_review,
     }
+
 
     return render(
         request,
@@ -384,16 +374,20 @@ def content_list(request):
         "",
     )
 
+
     contents = (
         Content.objects
         .select_related("created_by")
         .all()
     )
 
+
     if status_filter:
+
         contents = contents.filter(
             status=status_filter
         )
+
 
     context = {
         "contents": contents,
@@ -405,6 +399,7 @@ def content_list(request):
             "Admin",
         ),
     }
+
 
     return render(
         request,
@@ -433,6 +428,7 @@ def content_create(request):
 
         return redirect("content_list")
 
+
     if request.method == "POST":
 
         title = request.POST.get(
@@ -444,6 +440,7 @@ def content_create(request):
             "body",
             "",
         ).strip()
+
 
         if not title:
 
@@ -470,6 +467,7 @@ def content_create(request):
                 content_id=content.id,
             )
 
+
     return render(
         request,
         "dashboard/content_create.html",
@@ -491,6 +489,7 @@ def content_edit(request, content_id):
         id=content_id,
     )
 
+
     is_author = (
         content.created_by_id
         == request.user.id
@@ -508,6 +507,7 @@ def content_edit(request, content_id):
         "Admin",
     )
 
+
     can_edit = (
         is_author
         and content.status in (
@@ -516,11 +516,13 @@ def content_edit(request, content_id):
         )
     )
 
+
     can_submit = (
         is_author
         and content.status
         == Content.Status.DRAFT
     )
+
 
     can_approve_reject = (
         is_reviewer
@@ -528,11 +530,13 @@ def content_edit(request, content_id):
         == Content.Status.IN_REVIEW
     )
 
+
     can_publish = (
         is_editor
         and content.status
         == Content.Status.APPROVED
     )
+
 
     can_assign = (
         (is_author or is_editor)
@@ -540,17 +544,15 @@ def content_edit(request, content_id):
         != Content.Status.PUBLISHED
     )
 
+
     if request.method == "POST":
 
         action = request.POST.get(
             "action"
         )
 
-        try:
 
-            # -------------------------
-            # Save
-            # -------------------------
+        try:
 
             if action == "save" and can_edit:
 
@@ -564,10 +566,13 @@ def content_edit(request, content_id):
                     "",
                 )
 
+
                 if not title:
+
                     raise ValueError(
                         "Title can't be empty."
                     )
+
 
                 update_content(
                     content=content,
@@ -576,14 +581,12 @@ def content_edit(request, content_id):
                     user=request.user,
                 )
 
+
                 messages.success(
                     request,
                     "Version saved.",
                 )
 
-            # -------------------------
-            # AI Review
-            # -------------------------
 
             elif (
                 action == "run_ai"
@@ -596,20 +599,19 @@ def content_edit(request, content_id):
                     .first()
                 )
 
+
                 run_ai_review(
                     content=content,
                     user=request.user,
                     content_version=latest_version,
                 )
 
+
                 messages.success(
                     request,
                     "AI review complete.",
                 )
 
-            # -------------------------
-            # Submit
-            # -------------------------
 
             elif (
                 action == "submit"
@@ -621,14 +623,12 @@ def content_edit(request, content_id):
                     user=request.user,
                 )
 
+
                 messages.success(
                     request,
                     "Submitted for review.",
                 )
 
-            # -------------------------
-            # Approve
-            # -------------------------
 
             elif (
                 action == "approve"
@@ -640,14 +640,12 @@ def content_edit(request, content_id):
                     user=request.user,
                 )
 
+
                 messages.success(
                     request,
                     "Content approved.",
                 )
 
-            # -------------------------
-            # Reject
-            # -------------------------
 
             elif (
                 action == "reject"
@@ -659,14 +657,12 @@ def content_edit(request, content_id):
                     user=request.user,
                 )
 
+
                 messages.success(
                     request,
                     "Content rejected.",
                 )
 
-            # -------------------------
-            # Publish
-            # -------------------------
 
             elif (
                 action == "publish"
@@ -678,14 +674,12 @@ def content_edit(request, content_id):
                     user=request.user,
                 )
 
+
                 messages.success(
                     request,
                     "Content published.",
                 )
 
-            # -------------------------
-            # Schedule
-            # -------------------------
 
             elif (
                 action == "schedule"
@@ -697,23 +691,30 @@ def content_edit(request, content_id):
                     "",
                 )
 
+
                 when = parse_datetime(raw)
 
+
                 if when is None:
+
                     raise ValueError(
                         "Pick a valid date and time."
                     )
 
+
                 if timezone.is_naive(when):
+
                     when = timezone.make_aware(
                         when
                     )
+
 
                 schedule_content(
                     content=content,
                     user=request.user,
                     scheduled_at=when,
                 )
+
 
                 messages.success(
                     request,
@@ -723,9 +724,6 @@ def content_edit(request, content_id):
                     ),
                 )
 
-            # -------------------------
-            # Cancel schedule
-            # -------------------------
 
             elif (
                 action == "cancel_schedule"
@@ -737,14 +735,12 @@ def content_edit(request, content_id):
                     user=request.user,
                 )
 
+
                 messages.success(
                     request,
                     "Scheduled publish cancelled.",
                 )
 
-            # -------------------------
-            # Assign reviewer
-            # -------------------------
 
             elif (
                 action == "assign"
@@ -760,12 +756,15 @@ def content_edit(request, content_id):
                     "",
                 )
 
+
                 User = get_user_model()
+
 
                 reviewer = get_object_or_404(
                     User,
                     id=reviewer_id,
                 )
+
 
                 assign_reviewer(
                     content=content,
@@ -773,6 +772,7 @@ def content_edit(request, content_id):
                     assigned_by=request.user,
                     note=note,
                 )
+
 
                 messages.success(
                     request,
@@ -782,9 +782,6 @@ def content_edit(request, content_id):
                     ),
                 )
 
-            # -------------------------
-            # Restore version
-            # -------------------------
 
             elif action == "restore":
 
@@ -792,17 +789,20 @@ def content_edit(request, content_id):
                     "version_id"
                 )
 
+
                 version = get_object_or_404(
                     ContentVersion,
                     id=version_id,
                     content=content,
                 )
 
+
                 restore_version(
                     content=content,
                     version=version,
                     user=request.user,
                 )
+
 
                 messages.success(
                     request,
@@ -812,12 +812,14 @@ def content_edit(request, content_id):
                     ),
                 )
 
+
             else:
 
                 messages.error(
                     request,
                     "That action isn't available right now.",
                 )
+
 
         except ValueError as exc:
 
@@ -826,12 +828,15 @@ def content_edit(request, content_id):
                 str(exc),
             )
 
+
         return redirect(
             "content_edit",
             content_id=content.id,
         )
 
+
     versions = content.versions.all()
+
 
     latest_ai_review = (
         content.ai_reviews
@@ -839,13 +844,16 @@ def content_edit(request, content_id):
         .first()
     )
 
+
     assignments = (
         content.review_assignments
         .select_related("reviewer")
         .order_by("-assigned_at")
     )
 
+
     eligible_reviewers = []
+
 
     if can_assign:
 
@@ -862,6 +870,7 @@ def content_edit(request, content_id):
             .distinct()
         )
 
+
     context = {
         "content": content,
         "versions": versions,
@@ -874,6 +883,7 @@ def content_edit(request, content_id):
         "can_publish": can_publish,
         "can_assign": can_assign,
     }
+
 
     return render(
         request,
@@ -894,12 +904,15 @@ def content_diff(request, content_id):
         id=content_id,
     )
 
+
     versions = list(
         content.versions
         .order_by("version_number")
     )
 
+
     diff = None
+
 
     from_id = request.GET.get(
         "from"
@@ -909,6 +922,7 @@ def content_diff(request, content_id):
         "to"
     )
 
+
     if to_id:
 
         new_version = get_object_or_404(
@@ -917,7 +931,9 @@ def content_diff(request, content_id):
             content=content,
         )
 
+
         old_version = None
+
 
         if from_id:
 
@@ -940,10 +956,12 @@ def content_diff(request, content_id):
                 .first()
             )
 
+
         diff = compute_version_diff(
             old_version=old_version,
             new_version=new_version,
         )
+
 
     context = {
         "content": content,
@@ -952,6 +970,7 @@ def content_diff(request, content_id):
         "from_id": from_id,
         "to_id": to_id,
     }
+
 
     return render(
         request,
@@ -983,12 +1002,15 @@ def login_view(request):
     if request.user.is_authenticated:
         return redirect("dashboard")
 
+
     next_url = request.GET.get(
         "next",
         "",
     )
 
+
     User = get_user_model()
+
 
     if request.method == "POST":
 
@@ -997,10 +1019,12 @@ def login_view(request):
             "",
         ).strip()
 
+
         password = request.POST.get(
             "password",
             "",
         )
+
 
         next_url = (
             request.POST.get(
@@ -1010,6 +1034,7 @@ def login_view(request):
             or next_url
         )
 
+
         candidate = (
             User.objects
             .filter(
@@ -1018,9 +1043,6 @@ def login_view(request):
             .first()
         )
 
-        # -------------------------
-        # Unverified account
-        # -------------------------
 
         if (
             candidate
@@ -1037,6 +1059,7 @@ def login_view(request):
                 ),
             )
 
+
         else:
 
             user = authenticate(
@@ -1045,6 +1068,7 @@ def login_view(request):
                 password=password,
             )
 
+
             if user is not None:
 
                 auth_login(
@@ -1052,14 +1076,17 @@ def login_view(request):
                     user,
                 )
 
+
                 return redirect(
                     next_url or "dashboard"
                 )
+
 
             messages.error(
                 request,
                 "Invalid username or password.",
             )
+
 
     return render(
         request,
@@ -1079,7 +1106,9 @@ def register_view(request):
     if request.user.is_authenticated:
         return redirect("dashboard")
 
+
     User = get_user_model()
+
 
     if request.method == "POST":
 
@@ -1088,26 +1117,31 @@ def register_view(request):
             "",
         ).strip()
 
+
         email = request.POST.get(
             "email",
             "",
         ).strip()
+
 
         password = request.POST.get(
             "password",
             "",
         )
 
+
         role = request.POST.get(
             "role",
             "",
         )
 
+
         error = None
 
-        # -------------------------
-        # Validation
-        # -------------------------
+
+        # -------------------------------------------------
+        # VALIDATION
+        # -------------------------------------------------
 
         if (
             not username
@@ -1119,11 +1153,13 @@ def register_view(request):
                 "All fields are required."
             )
 
+
         elif not email:
 
             error = (
                 "Email is required for verification."
             )
+
 
         elif User.objects.filter(
             username=username
@@ -1134,6 +1170,7 @@ def register_view(request):
                 "already exists."
             )
 
+
         elif role not in (
             dj_settings.CVDM_SELF_ASSIGNABLE_ROLES
         ):
@@ -1141,6 +1178,7 @@ def register_view(request):
             error = (
                 "Please choose a valid role."
             )
+
 
         else:
 
@@ -1156,9 +1194,10 @@ def register_view(request):
                     exc.messages
                 )
 
-        # -------------------------
-        # Show validation error
-        # -------------------------
+
+        # -------------------------------------------------
+        # VALIDATION ERROR
+        # -------------------------------------------------
 
         if error:
 
@@ -1167,9 +1206,10 @@ def register_view(request):
                 error,
             )
 
-        # -------------------------
-        # Create account
-        # -------------------------
+
+        # -------------------------------------------------
+        # CREATE USER
+        # -------------------------------------------------
 
         else:
 
@@ -1180,9 +1220,10 @@ def register_view(request):
                 is_active=False,
             )
 
-            # -------------------------
-            # Assign role
-            # -------------------------
+
+            # -------------------------------------------------
+            # ASSIGN ROLE
+            # -------------------------------------------------
 
             group, _ = (
                 Group.objects.get_or_create(
@@ -1190,17 +1231,20 @@ def register_view(request):
                 )
             )
 
+
             user.groups.add(group)
 
-            # -------------------------
-            # Create verification
-            # -------------------------
+
+            # -------------------------------------------------
+            # CREATE EMAIL VERIFICATION
+            # -------------------------------------------------
 
             verification = (
                 EmailVerification.objects.create(
                     user=user
                 )
             )
+
 
             verify_url = (
                 request.build_absolute_uri(
@@ -1213,64 +1257,38 @@ def register_view(request):
                 )
             )
 
-            # -------------------------
-            # Send verification email
-            # -------------------------
 
-            try:
+            # -------------------------------------------------
+            # BREVO CONFIGURATION CHECK
+            # -------------------------------------------------
 
-                send_mail(
-                    subject=(
-                        "Verify your CVDM account"
-                    ),
+            brevo_api_key = (
+                dj_settings.BREVO_API_KEY
+            )
 
-                    message=(
-                        f"Hi {username},\n\n"
-                        "Thanks for registering "
-                        "with CVDM.\n\n"
-                        "Please click the link below "
-                        "to verify your email and "
-                        "activate your account:\n\n"
-                        f"{verify_url}\n\n"
-                        "If you didn't request this "
-                        "account, you can ignore this "
-                        "email.\n\n"
-                        "— CVDM"
-                    ),
+            brevo_sender_email = (
+                dj_settings.BREVO_SENDER_EMAIL
+            )
 
-                    from_email=(
-                        dj_settings.DEFAULT_FROM_EMAIL
-                    ),
+            brevo_sender_name = (
+                dj_settings.BREVO_SENDER_NAME
+            )
 
-                    recipient_list=[
-                        email
-                    ],
 
-                    fail_silently=False,
-                )
-
-            except Exception as exc:
-
-                # -------------------------
-                # Cleanup failed registration
-                # -------------------------
-
-                print(
-                    "EMAIL SEND ERROR:",
-                    repr(exc),
-                )
+            if not brevo_api_key:
 
                 verification.delete()
                 user.delete()
 
+
                 messages.error(
                     request,
                     (
-                        "We couldn't send the "
-                        "verification email. "
+                        "Email service is not configured. "
                         "Please try again later."
                     ),
                 )
+
 
                 return render(
                     request,
@@ -1283,9 +1301,228 @@ def register_view(request):
                     },
                 )
 
-            # -------------------------
-            # Email sent
-            # -------------------------
+
+            if not brevo_sender_email:
+
+                verification.delete()
+                user.delete()
+
+
+                messages.error(
+                    request,
+                    (
+                        "Email service is not configured. "
+                        "Please try again later."
+                    ),
+                )
+
+
+                return render(
+                    request,
+                    "dashboard/register.html",
+                    {
+                        "roles": (
+                            dj_settings
+                            .CVDM_SELF_ASSIGNABLE_ROLES
+                        )
+                    },
+                )
+
+
+            # -------------------------------------------------
+            # BREVO EMAIL PAYLOAD
+            # -------------------------------------------------
+
+            email_payload = {
+                "sender": {
+                    "name": brevo_sender_name,
+                    "email": brevo_sender_email,
+                },
+
+                "to": [
+                    {
+                        "email": email,
+                        "name": username,
+                    }
+                ],
+
+                "subject": (
+                    "Verify your CVDM account"
+                ),
+
+                "textContent": (
+                    f"Hi {username},\n\n"
+                    "Thanks for registering with CVDM.\n\n"
+                    "Please click the link below "
+                    "to verify your email and "
+                    "activate your account:\n\n"
+                    f"{verify_url}\n\n"
+                    "If you didn't request this "
+                    "account, you can ignore this email.\n\n"
+                    "— CVDM"
+                ),
+
+                "htmlContent": f"""
+                    <!DOCTYPE html>
+                    <html>
+                    <body style="
+                        font-family: Arial, sans-serif;
+                        color: #20283a;
+                        line-height: 1.6;
+                    ">
+
+                        <h2>
+                            Verify your CVDM account
+                        </h2>
+
+                        <p>
+                            Hi {username},
+                        </p>
+
+                        <p>
+                            Thanks for registering
+                            with CVDM.
+                            Please verify your
+                            email address to
+                            activate your account.
+                        </p>
+
+                        <p>
+                            <a
+                                href="{verify_url}"
+                                style="
+                                    display:inline-block;
+                                    padding:10px 18px;
+                                    background:#20283a;
+                                    color:#ffffff;
+                                    text-decoration:none;
+                                    border-radius:6px;
+                                "
+                            >
+                                Verify Email
+                            </a>
+                        </p>
+
+                        <p>
+                            If the button doesn't work,
+                            copy this link into your browser:
+                        </p>
+
+                        <p>
+                            {verify_url}
+                        </p>
+
+                        <p>
+                            If you didn't request this
+                            account, you can ignore this email.
+                        </p>
+
+                        <p>
+                            — CVDM
+                        </p>
+
+                    </body>
+                    </html>
+                """,
+            }
+
+
+            # -------------------------------------------------
+            # SEND EMAIL THROUGH BREVO API
+            # -------------------------------------------------
+
+            try:
+
+                brevo_response = requests.post(
+                    "https://api.brevo.com/v3/smtp/email",
+
+                    headers={
+                        "accept": "application/json",
+                        "api-key": brevo_api_key,
+                        "content-type": "application/json",
+                    },
+
+                    json=email_payload,
+
+                    timeout=10,
+                )
+
+
+                # -------------------------------------------------
+                # BREVO ERROR
+                # -------------------------------------------------
+
+                if not brevo_response.ok:
+
+                    print(
+                        "BREVO EMAIL ERROR:",
+                        brevo_response.status_code,
+                        brevo_response.text,
+                    )
+
+
+                    verification.delete()
+                    user.delete()
+
+
+                    messages.error(
+                        request,
+                        (
+                            "We couldn't send the "
+                            "verification email. "
+                            "Please try again later."
+                        ),
+                    )
+
+
+                    return render(
+                        request,
+                        "dashboard/register.html",
+                        {
+                            "roles": (
+                                dj_settings
+                                .CVDM_SELF_ASSIGNABLE_ROLES
+                            )
+                        },
+                    )
+
+
+            except requests.RequestException as exc:
+
+                print(
+                    "BREVO CONNECTION ERROR:",
+                    repr(exc),
+                )
+
+
+                verification.delete()
+                user.delete()
+
+
+                messages.error(
+                    request,
+                    (
+                        "Email service is temporarily "
+                        "unavailable. Please try again later."
+                    ),
+                )
+
+
+                return render(
+                    request,
+                    "dashboard/register.html",
+                    {
+                        "roles": (
+                            dj_settings
+                            .CVDM_SELF_ASSIGNABLE_ROLES
+                        )
+                    },
+                )
+
+
+            # -------------------------------------------------
+            # EMAIL SENT SUCCESSFULLY
+            # -------------------------------------------------
 
             return render(
                 request,
@@ -1294,6 +1531,7 @@ def register_view(request):
                     "email": email
                 },
             )
+
 
     return render(
         request,
@@ -1318,6 +1556,7 @@ def verify_email_view(request, token):
         token=token,
     )
 
+
     if not verification.is_verified:
 
         verification.is_verified = True
@@ -1326,6 +1565,7 @@ def verify_email_view(request, token):
             timezone.now()
         )
 
+
         verification.save(
             update_fields=[
                 "is_verified",
@@ -1333,7 +1573,9 @@ def verify_email_view(request, token):
             ]
         )
 
+
         verification.user.is_active = True
+
 
         verification.user.save(
             update_fields=[
@@ -1341,10 +1583,12 @@ def verify_email_view(request, token):
             ]
         )
 
+
         messages.success(
             request,
             "Email verified. You can now sign in.",
         )
+
 
     else:
 
@@ -1352,6 +1596,7 @@ def verify_email_view(request, token):
             request,
             "This email was already verified.",
         )
+
 
     return redirect("login")
 
@@ -1365,3 +1610,4 @@ def logout_view(request):
     auth_logout(request)
 
     return redirect("login")
+
