@@ -281,20 +281,31 @@ def dashboard(request):
 def review_content(request, content_id):
 
     content = get_object_or_404(
-        Content.objects.select_related(
-            "created_by"
-        ),
+        Content.objects.select_related("created_by"),
         id=content_id,
     )
 
-
-    assignment = get_object_or_404(
-        ReviewAssignment,
-        content=content,
-        reviewer=request.user,
-        status=ReviewAssignment.Status.PENDING,
+    # Get the latest pending assignment for this reviewer.
+    # Multiple assignments may exist for the same content,
+    # so we use filter().first() instead of get().
+    assignment = (
+        ReviewAssignment.objects
+        .filter(
+            content=content,
+            reviewer=request.user,
+            status=ReviewAssignment.Status.PENDING,
+        )
+        .select_related("assigned_by", "content")
+        .order_by("-assigned_at")
+        .first()
     )
 
+    if assignment is None:
+        messages.error(
+            request,
+            "You do not have a pending review assignment for this content.",
+        )
+        return redirect("dashboard")
 
     latest_version = (
         content.versions
@@ -302,20 +313,15 @@ def review_content(request, content_id):
         .first()
     )
 
-
     latest_ai_review = (
         content.ai_reviews
         .order_by("-created_at")
         .first()
     )
 
-
     if request.method == "POST":
 
-        action = request.POST.get(
-            "action"
-        )
-
+        action = request.POST.get("action")
 
         if action == "approve":
 
@@ -331,8 +337,7 @@ def review_content(request, content_id):
 
             return redirect("dashboard")
 
-
-        if action == "reject":
+        elif action == "reject":
 
             reject_content(
                 content=content,
@@ -346,7 +351,6 @@ def review_content(request, content_id):
 
             return redirect("dashboard")
 
-
     context = {
         "content": content,
         "assignment": assignment,
@@ -354,13 +358,11 @@ def review_content(request, content_id):
         "latest_ai_review": latest_ai_review,
     }
 
-
     return render(
         request,
         "dashboard/review_content.html",
         context,
     )
-
 
 # =========================================================
 # CONTENT LIST

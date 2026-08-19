@@ -3,66 +3,303 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Review — {{ content.title }}</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+        rel="stylesheet"
+    >
 
     <style>
         :root {
-            --ink: #20283a; --ink-soft: #57607a; --ink-faint: #8b93a8;
-            --paper: #eeece3; --card: #fbfaf5; --rule: #dbd7c9; --rule-strong: #b9b3a0;
-            --green: #1f6f5c; --green-bg: #dfeee7;
-            --red: #a3352a; --red-bg: #f5e2df;
-            --amber: #8a5a12; --amber-bg: #f3e6cc;
-            --blue: #2a4c78; --blue-bg: #dfe7f2;
+            --ink: #20283a;
+            --ink-soft: #57607a;
+            --ink-faint: #8b93a8;
+
+            --paper: #eeece3;
+            --card: #fbfaf5;
+
+            --rule: #dbd7c9;
+            --rule-strong: #b9b3a0;
+
+            --green: #1f6f5c;
+            --green-bg: #dfeee7;
+
+            --red: #a3352a;
+            --red-bg: #f5e2df;
+
+            --amber: #8a5a12;
+            --amber-bg: #f3e6cc;
+
+            --blue: #2a4c78;
+            --blue-bg: #dfe7f2;
+
             --font-display: "Lora", serif;
             --font-sans: "IBM Plex Sans", sans-serif;
             --font-mono: "IBM Plex Mono", monospace;
         }
-        * { box-sizing: border-box; }
-        body { margin: 0; font-family: var(--font-sans); background: var(--paper); color: var(--ink); }
-        .page { padding: 36px 40px 70px; max-width: 880px; margin: auto; }
 
-        .back-link { display: inline-block; margin-bottom: 20px; color: var(--blue); text-decoration: none; font-size: 13px; font-weight: 500; }
-        .back-link:hover { text-decoration: underline; }
-        .back-link::before { content: "← "; }
-
-        h1 { font-family: var(--font-display); font-weight: 600; margin: 0 0 6px; font-size: 24px; }
-        .meta-line { color: var(--ink-faint); font-size: 13px; font-family: var(--font-mono); margin-bottom: 22px; }
-
-        .card { background: var(--card); border: 1px solid var(--rule); padding: 24px; border-radius: 8px; margin-bottom: 18px; }
-        .card h2 {
-            margin: 0 0 16px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em;
-            color: var(--ink-faint); font-weight: 600;
+        * {
+            box-sizing: border-box;
         }
 
-        .content-body { white-space: pre-wrap; line-height: 1.7; color: var(--ink); font-size: 15px; }
+        body {
+            margin: 0;
+            font-family: var(--font-sans);
+            background: var(--paper);
+            color: var(--ink);
+        }
+
+        .page {
+            padding: 36px 40px 70px;
+            max-width: 880px;
+            margin: auto;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--blue);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .back-link::before {
+            content: "← ";
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            font-weight: 600;
+            margin: 0 0 6px;
+            font-size: 24px;
+        }
+
+        .meta-line {
+            color: var(--ink-faint);
+            font-size: 13px;
+            font-family: var(--font-mono);
+            margin-bottom: 22px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--rule);
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 18px;
+        }
+
+        .card h2 {
+            margin: 0 0 16px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--ink-faint);
+            font-weight: 600;
+        }
+
+        .content-body {
+            white-space: pre-wrap;
+            line-height: 1.7;
+            color: var(--ink);
+            font-size: 15px;
+        }
 
         .assignment-note {
-            background: var(--amber-bg); color: var(--amber); padding: 12px 16px;
-            border-radius: 6px; font-size: 13px; margin-bottom: 20px; border-left: 3px solid var(--amber);
+            background: var(--amber-bg);
+            color: var(--amber);
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            border-left: 3px solid var(--amber);
         }
 
-        .ai-score-row { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
-        .ai-score { font-family: var(--font-mono); font-size: 34px; font-weight: 500; color: var(--blue); }
-        .ai-score-label { color: var(--ink-faint); font-size: 12px; }
-        .ai-summary { color: var(--ink-soft); margin-bottom: 14px; font-size: 14px; line-height: 1.6; }
-        .ai-issue { background: var(--amber-bg); color: #5a3d0c; padding: 10px 14px; border-radius: 6px; font-size: 13px; margin-bottom: 8px; }
+        .ai-score-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 14px;
+        }
+
+        .ai-score {
+            font-family: var(--font-mono);
+            font-size: 34px;
+            font-weight: 500;
+            color: var(--blue);
+        }
+
+        .ai-score-label {
+            color: var(--ink-faint);
+            font-size: 12px;
+        }
+
+        .ai-summary {
+            color: var(--ink-soft);
+            margin-bottom: 14px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .ai-issue {
+            background: var(--amber-bg);
+            color: #5a3d0c;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
         .ai-issue-type {
-            display: block; font-family: var(--font-mono); font-size: 10px; text-transform: uppercase;
-            color: var(--amber); margin-bottom: 3px; letter-spacing: 0.06em;
+            display: block;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            text-transform: uppercase;
+            color: var(--amber);
+            margin-bottom: 3px;
+            letter-spacing: 0.06em;
         }
-        .ai-unavailable { color: var(--ink-faint); font-size: 13px; }
 
-        .version-line { font-size: 12px; color: var(--ink-faint); font-family: var(--font-mono); }
+        .ai-unavailable {
+            color: var(--ink-faint);
+            font-size: 13px;
+        }
 
-        .actions { display: flex; gap: 10px; }
-        .btn { padding: 10px 24px; border-radius: 6px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; }
-        .btn-approve { background: var(--green); color: #fff; }
-        .btn-approve:hover { background: #17564a; }
-        .btn-reject { background: var(--red); color: #fff; }
-        .btn-reject:hover { background: #7f271e; }
+        .version-line {
+            font-size: 12px;
+            color: var(--ink-faint);
+            font-family: var(--font-mono);
+        }
+
+        /* =========================
+           Comments
+        ========================= */
+
+        .comment-item {
+            background: var(--blue-bg);
+            padding: 14px 16px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-left: 3px solid var(--blue);
+        }
+
+        .comment-author {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--ink);
+        }
+
+        .comment-text {
+            margin-top: 6px;
+            color: var(--ink-soft);
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .comment-date {
+            display: block;
+            margin-top: 7px;
+            color: var(--ink-faint);
+            font-family: var(--font-mono);
+            font-size: 10px;
+        }
+
+        .comment-empty {
+            color: var(--ink-faint);
+            font-size: 13px;
+            padding: 5px 0;
+        }
+
+        .comment-error {
+            color: var(--red);
+            background: var(--red-bg);
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        #commentInput {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--rule);
+            border-radius: 6px;
+            resize: vertical;
+            min-height: 100px;
+            font-family: var(--font-sans);
+            font-size: 14px;
+            background: var(--card);
+            color: var(--ink);
+            outline: none;
+        }
+
+        #commentInput:focus {
+            border-color: var(--blue);
+        }
+
+        .comment-form {
+            margin-top: 18px;
+        }
+
+        /* =========================
+           Buttons
+        ========================= */
+
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: 6px;
+            border: none;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-approve {
+            background: var(--green);
+            color: #fff;
+        }
+
+        .btn-approve:hover {
+            background: #17564a;
+        }
+
+        .btn-reject {
+            background: var(--red);
+            color: #fff;
+        }
+
+        .btn-reject:hover {
+            background: #7f271e;
+        }
+
+        .btn-comment {
+            background: var(--blue);
+            color: #fff;
+            margin-top: 10px;
+        }
+
+        .btn-comment:hover {
+            opacity: 0.9;
+        }
+
+        .btn-comment:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 
@@ -70,65 +307,494 @@
 
 <div class="page">
 
-    <a class="back-link" href="{% url 'dashboard' %}">Back to dashboard</a>
+    <!-- Back -->
+    <a class="back-link" href="{% url 'dashboard' %}">
+        Back to dashboard
+    </a>
 
+
+    <!-- Content title -->
     <h1>{{ content.title }}</h1>
-    <div class="meta-line">by {{ content.created_by.username }} · status: {{ content.status }}</div>
 
+    <div class="meta-line">
+        by {{ content.created_by.username }}
+        · status: {{ content.status }}
+    </div>
+
+
+    <!-- Assignment information -->
     <div class="assignment-note">
-        You were assigned to review this by <strong>{{ assignment.assigned_by.username }}</strong>
+
+        You were assigned to review this by
+        <strong>{{ assignment.assigned_by.username }}</strong>
+
         on {{ assignment.assigned_at|date:"d M Y, h:i A" }}.
-        {% if assignment.note %} Note: {{ assignment.note }}{% endif %}
-    </div>
 
-    <div class="card">
-        <h2>Content</h2>
-        <div class="content-body">{{ content.body }}</div>
-        {% if latest_version %}
-            <p class="version-line" style="margin-top:14px;">
-                Currently on version {{ latest_version.version_number }} ({{ latest_version.change_note|default:"No note" }})
-            </p>
+        {% if assignment.note %}
+            Note: {{ assignment.note }}
         {% endif %}
+
     </div>
 
+
+    <!-- =========================
+         CONTENT
+    ========================== -->
+
     <div class="card">
+
+        <h2>Content</h2>
+
+        <div class="content-body">
+            {{ content.body }}
+        </div>
+
+        {% if latest_version %}
+
+            <p
+                class="version-line"
+                style="margin-top:14px;"
+            >
+                Currently on version
+                {{ latest_version.version_number }}
+
+                ({{ latest_version.change_note|default:"No note" }})
+            </p>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- =========================
+         AI REVIEW
+    ========================== -->
+
+    <div class="card">
+
         <h2>AI pre-review</h2>
 
         {% if latest_ai_review and latest_ai_review.status == "completed" %}
+
             <div class="ai-score-row">
-                <div class="ai-score">{{ latest_ai_review.score|default:"—" }}</div>
-                <div class="ai-score-label">clarity / grammar score</div>
+
+                <div class="ai-score">
+                    {{ latest_ai_review.score|default:"—" }}
+                </div>
+
+                <div class="ai-score-label">
+                    clarity / grammar score
+                </div>
+
             </div>
-            <p class="ai-summary">{{ latest_ai_review.summary }}</p>
+
+            <p class="ai-summary">
+                {{ latest_ai_review.summary }}
+            </p>
+
             {% if latest_ai_review.issues %}
+
                 {% for issue in latest_ai_review.issues %}
+
                     <div class="ai-issue">
-                        <span class="ai-issue-type">{{ issue.type }}</span>
+
+                        <span class="ai-issue-type">
+                            {{ issue.type }}
+                        </span>
+
                         {{ issue.message }}
+
                     </div>
+
                 {% endfor %}
+
             {% else %}
-                <p class="ai-unavailable">No issues flagged.</p>
+
+                <p class="ai-unavailable">
+                    No issues flagged.
+                </p>
+
             {% endif %}
+
+
         {% elif latest_ai_review and latest_ai_review.status == "failed" %}
-            <p class="ai-unavailable">AI review could not run: {{ latest_ai_review.error_message }}</p>
+
+            <p class="ai-unavailable">
+
+                AI review could not run:
+                {{ latest_ai_review.error_message }}
+
+            </p>
+
+
         {% else %}
-            <p class="ai-unavailable">No AI review has been run on this content yet.</p>
+
+            <p class="ai-unavailable">
+                No AI review has been run on this content yet.
+            </p>
+
         {% endif %}
+
     </div>
 
+
+    <!-- =========================
+         COMMENTS
+    ========================== -->
+
     <div class="card">
-        <h2>Decision</h2>
-        <form method="post">
+
+        <h2>Comments</h2>
+
+        <div id="commentsContainer">
+
+            <p
+                class="ai-unavailable"
+                id="commentsLoading"
+            >
+                Loading comments...
+            </p>
+
+        </div>
+
+
+        <form
+            id="commentForm"
+            class="comment-form"
+        >
+
             {% csrf_token %}
-            <div class="actions">
-                <button type="submit" name="action" value="approve" class="btn btn-approve">Approve</button>
-                <button type="submit" name="action" value="reject" class="btn btn-reject">Reject</button>
-            </div>
+
+            <textarea
+                id="commentInput"
+                placeholder="Write a comment..."
+                required
+            ></textarea>
+
+
+            <button
+                type="submit"
+                class="btn btn-comment"
+                id="commentSubmitBtn"
+            >
+                Add Comment
+            </button>
+
         </form>
+
+    </div>
+
+
+    <!-- =========================
+         DECISION
+    ========================== -->
+
+    <div class="card">
+
+        <h2>Decision</h2>
+
+        <form method="post">
+
+            {% csrf_token %}
+
+            <div class="actions">
+
+                <button
+                    type="submit"
+                    name="action"
+                    value="approve"
+                    class="btn btn-approve"
+                >
+                    Approve
+                </button>
+
+
+                <button
+                    type="submit"
+                    name="action"
+                    value="reject"
+                    class="btn btn-reject"
+                >
+                    Reject
+                </button>
+
+            </div>
+
+        </form>
+
     </div>
 
 </div>
+
+
+<!-- =========================
+     COMMENTS JAVASCRIPT
+========================== -->
+
+<script>
+
+    const assignmentId = "{{ assignment.id }}";
+
+
+    const commentsContainer =
+        document.getElementById("commentsContainer");
+
+    const commentForm =
+        document.getElementById("commentForm");
+
+    const commentInput =
+        document.getElementById("commentInput");
+
+    const commentSubmitBtn =
+        document.getElementById("commentSubmitBtn");
+
+
+    function getCSRFToken() {
+
+        const csrfInput =
+            document.querySelector(
+                "[name=csrfmiddlewaretoken]"
+            );
+
+        return csrfInput
+            ? csrfInput.value
+            : "";
+    }
+
+
+    function escapeHtml(value) {
+
+        const div =
+            document.createElement("div");
+
+        div.textContent = value;
+
+        return div.innerHTML;
+    }
+
+
+    /* =========================
+       GET COMMENTS
+    ========================== */
+
+    async function loadComments() {
+
+        try {
+
+            const response = await fetch(
+                `/api/review-assignments/${assignmentId}/comments/`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json"
+                    }
+                }
+            );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    `HTTP ${response.status}`
+                );
+
+            }
+
+
+            const comments =
+                await response.json();
+
+
+            commentsContainer.innerHTML = "";
+
+
+            if (
+                !Array.isArray(comments) ||
+                comments.length === 0
+            ) {
+
+                commentsContainer.innerHTML = `
+                    <p class="comment-empty">
+                        No comments yet.
+                    </p>
+                `;
+
+                return;
+            }
+
+
+            comments.forEach(comment => {
+
+                const commentElement =
+                    document.createElement("div");
+
+                commentElement.className =
+                    "comment-item";
+
+
+                commentElement.innerHTML = `
+
+                    <div class="comment-author">
+                        ${escapeHtml(
+                            comment.user_username ||
+                            "Unknown user"
+                        )}
+                    </div>
+
+                    <div class="comment-text">
+                        ${escapeHtml(
+                            comment.comment || ""
+                        )}
+                    </div>
+
+                    <span class="comment-date">
+                        ${
+                            comment.created_at
+                                ? new Date(
+                                    comment.created_at
+                                  ).toLocaleString()
+                                : ""
+                        }
+                    </span>
+
+                `;
+
+
+                commentsContainer.appendChild(
+                    commentElement
+                );
+
+            });
+
+        }
+        catch (error) {
+
+            console.error(
+                "Error loading comments:",
+                error
+            );
+
+
+            commentsContainer.innerHTML = `
+                <div class="comment-error">
+                    Unable to load comments.
+                </div>
+            `;
+
+        }
+
+    }
+
+
+    /* =========================
+       POST COMMENT
+    ========================== */
+
+    commentForm.addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const comment =
+                commentInput.value.trim();
+
+
+            if (!comment) {
+                return;
+            }
+
+
+            commentSubmitBtn.disabled = true;
+
+            commentSubmitBtn.textContent =
+                "Adding...";
+
+
+            try {
+
+                const response = await fetch(
+                    `/api/review-assignments/${assignmentId}/comments/`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+
+                            "Accept":
+                                "application/json",
+
+                            "X-CSRFToken":
+                                getCSRFToken()
+                        },
+
+                        body: JSON.stringify({
+                            comment: comment
+                        })
+                    }
+                );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    console.error(
+                        "Comment API error:",
+                        data
+                    );
+
+                    alert(
+                        data.detail ||
+                        "Failed to add comment."
+                    );
+
+                    return;
+                }
+
+
+                commentInput.value = "";
+
+
+                await loadComments();
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Error adding comment:",
+                    error
+                );
+
+                alert(
+                    "Something went wrong while adding the comment."
+                );
+
+            }
+            finally {
+
+                commentSubmitBtn.disabled = false;
+
+                commentSubmitBtn.textContent =
+                    "Add Comment";
+
+            }
+
+        }
+    );
+
+
+    /* =========================
+       INITIAL LOAD
+    ========================== */
+
+    loadComments();
+
+</script>
 
 </body>
 </html>

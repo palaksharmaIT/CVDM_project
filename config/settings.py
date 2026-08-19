@@ -73,8 +73,6 @@ if RENDER_EXTERNAL_HOSTNAME:
         )
 
 
-# Render terminates HTTPS before forwarding
-# the request to Gunicorn.
 SECURE_PROXY_SSL_HEADER = (
     "HTTP_X_FORWARDED_PROTO",
     "https",
@@ -104,6 +102,15 @@ BREVO_SENDER_EMAIL = os.getenv(
 BREVO_SENDER_NAME = os.getenv(
     "BREVO_SENDER_NAME",
     "CVDM",
+)
+
+# =========================================================
+# GEMINI AI
+# =========================================================
+
+GEMINI_API_KEY = os.getenv(
+    "GEMINI_API_KEY",
+    "",
 )
 
 
