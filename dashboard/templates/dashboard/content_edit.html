@@ -1,25 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>{{ content.title }} — CVDM</title>
+    <title>Content — CVDM</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Lora:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Lora:ital,wght@0,500;0,600;0,700;1,500&display=swap"
+        rel="stylesheet"
+    >
 
     <style>
 
+        /* =====================================================
+           VARIABLES
+        ===================================================== */
+
         :root {
+
             --ink: #20283a;
             --ink-soft: #57607a;
             --ink-faint: #8b93a8;
 
             --paper: #eeece3;
             --card: #fbfaf5;
+
             --rule: #dbd7c9;
             --rule-strong: #b9b3a0;
 
@@ -43,1737 +54,1122 @@
             --font-mono: "IBM Plex Mono", monospace;
         }
 
+
+        /* =====================================================
+           RESET
+        ===================================================== */
+
         * {
             box-sizing: border-box;
         }
 
+
         body {
+
             margin: 0;
-            font-family: var(--font-sans);
+
             background: var(--paper);
+
             color: var(--ink);
+
+            font-family: var(--font-sans);
         }
 
-        body.popup-open {
-            overflow: hidden;
-        }
+
+        /* =====================================================
+           PAGE
+        ===================================================== */
 
         .page {
-            padding: 36px 40px 70px;
+
             max-width: 1120px;
+
             margin: auto;
+
+            padding: 40px 40px 70px;
         }
 
-        .back-link {
-            display: inline-block;
-            margin-bottom: 16px;
-            color: var(--blue);
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 500;
-        }
 
-        .back-link:hover {
-            text-decoration: underline;
-        }
+        /* =====================================================
+           HEADER
+        ===================================================== */
 
-        .back-link::before {
-            content: "← ";
-        }
+        .top-bar {
 
-        .top-row {
             display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 6px;
+
+            justify-content: space-between;
+
+            align-items: flex-start;
+
+            margin-bottom: 28px;
         }
+
+
+        .eyebrow {
+
+            margin-bottom: 7px;
+
+            color: var(--ink-faint);
+
+            font-family: var(--font-mono);
+
+            font-size: 10px;
+
+            letter-spacing: 0.1em;
+
+            text-transform: uppercase;
+        }
+
 
         h1 {
-            font-family: var(--font-display);
-            font-weight: 700;
+
             margin: 0;
-            font-size: 25px;
-        }
 
-        .stamp {
-            display: inline-block;
-            font-family: var(--font-mono);
-            font-size: 10px;
-            font-weight: 500;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            padding: 4px 10px;
-            border: 1.5px solid currentColor;
-            border-radius: 3px;
-            transform: rotate(-3deg);
-            background: transparent;
-        }
-
-        .stamp-draft {
-            color: var(--gray);
-        }
-
-        .stamp-in_review {
-            color: var(--amber);
-        }
-
-        .stamp-approved {
-            color: var(--green);
-        }
-
-        .stamp-rejected {
-            color: var(--red);
-        }
-
-        .stamp-published {
-            color: var(--blue);
-        }
-
-        .meta-line {
-            color: var(--ink-faint);
-            font-size: 12px;
-            font-family: var(--font-mono);
-            margin-bottom: 26px;
-        }
-
-        .messages {
-            margin-bottom: 16px;
-        }
-
-        .msg {
-            padding: 10px 14px;
-            border-radius: 6px;
-            font-size: 13px;
-            margin-bottom: 8px;
-        }
-
-        .msg-success {
-            background: var(--green-bg);
-            color: var(--green);
-        }
-
-        .msg-error {
-            background: var(--red-bg);
-            color: var(--red);
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 320px;
-            gap: 20px;
-            align-items: start;
-        }
-
-        .card {
-            background: var(--card);
-            border: 1px solid var(--rule);
-            padding: 22px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-        }
-
-        .card h3 {
-            margin: 0 0 12px;
-            font-size: 11px;
-            text-transform: uppercase;
-            color: var(--ink-faint);
-            letter-spacing: 0.07em;
-            font-weight: 600;
-        }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 6px 2px 12px;
-            border: none;
-            border-bottom: 1px solid var(--rule);
             font-family: var(--font-display);
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            background: transparent;
-            color: var(--ink);
+
+            font-size: 32px;
+
+            line-height: 1.2;
+
+            font-weight: 700;
         }
 
-        input[type="text"]:focus {
-            outline: none;
-            border-bottom-color: var(--blue);
-        }
 
-        input[type="text"]:disabled {
+        .header-description {
+
+            margin: 8px 0 0;
+
             color: var(--ink-soft);
-        }
 
-        textarea {
-            width: 100%;
-            min-height: 260px;
-            resize: vertical;
-            border: none;
-            font-size: 14px;
-            line-height: 1.75;
-            color: var(--ink);
-            background: transparent;
-            font-family: var(--font-sans);
-            padding: 0;
-            margin-bottom: 8px;
-        }
-
-        textarea:focus {
-            outline: none;
-        }
-
-        textarea:disabled {
-            color: var(--ink-soft);
-        }
-
-        input[type="number"],
-        input[type="datetime-local"],
-        select {
-            width: 100%;
-            padding: 9px 11px;
-            border: 1px solid var(--rule-strong);
-            border-radius: 6px;
             font-size: 13px;
-            font-family: var(--font-sans);
-            margin-bottom: 12px;
-            background: #fff;
-            color: var(--ink);
         }
 
-        .btn {
-            padding: 9px 18px;
+
+        /* =====================================================
+           CREATE BUTTON
+        ===================================================== */
+
+        .create-btn {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+            padding: 10px 17px;
+
             border-radius: 6px;
-            border: none;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-right: 8px;
-            margin-bottom: 8px;
-        }
 
-        .btn-primary {
             background: var(--ink);
+
             color: var(--card);
+
+            text-decoration: none;
+
+            font-size: 13px;
+
+            font-weight: 600;
         }
 
-        .btn-primary:hover {
+
+        .create-btn:hover {
+
             background: var(--blue);
         }
 
-        .btn-success {
-            background: var(--green);
-            color: #fff;
+
+        /* =====================================================
+           SEARCH & FILTERS
+        ===================================================== */
+
+        .search-filter-card {
+
+            background: var(--card);
+
+            border: 1px solid var(--rule);
+
+            border-radius: 8px;
+
+            padding: 16px;
+
+            margin-bottom: 22px;
         }
 
-        .btn-success:hover {
-            background: #17564a;
-        }
 
-        .btn-danger {
-            background: var(--red);
-            color: #fff;
-        }
+        .filter-heading {
 
-        .btn-danger:hover {
-            background: #7f271e;
-        }
+            margin: 0 0 12px;
 
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--rule-strong);
-            color: var(--ink);
-        }
-
-        .btn-outline:hover {
-            background: #fff;
-        }
-
-        .actions-row {
-            padding-top: 14px;
-            border-top: 1px solid var(--rule);
-            margin-top: 4px;
-        }
-
-        .ai-score-row {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin-bottom: 10px;
-        }
-
-        .ai-score {
-            font-family: var(--font-mono);
-            font-size: 30px;
-            font-weight: 500;
-            color: var(--blue);
-        }
-
-        .ai-score-label {
             color: var(--ink-faint);
-            font-size: 11px;
-        }
 
-        .ai-summary {
-            color: var(--ink-soft);
-            font-size: 13px;
-            margin-bottom: 12px;
-            line-height: 1.55;
-        }
+            font-size: 10px;
 
-        .ai-issue {
-            background: var(--amber-bg);
-            color: #5a3d0c;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            margin-bottom: 6px;
-        }
-
-        .ai-issue-type {
-            display: block;
-            font-family: var(--font-mono);
-            font-size: 9px;
-            text-transform: uppercase;
-            color: var(--amber);
-            margin-bottom: 2px;
-        }
-
-        .muted {
-            color: var(--ink-faint);
-            font-size: 12px;
-        }
-
-        .version-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--rule);
-            font-size: 13px;
-        }
-
-        .version-item:last-child {
-            border-bottom: none;
-        }
-
-        .version-num {
-            font-family: var(--font-mono);
             font-weight: 600;
+
+            letter-spacing: 0.08em;
+
+            text-transform: uppercase;
         }
 
-        .version-note {
-            color: var(--ink-faint);
-            font-size: 11px;
-        }
 
-        .assign-list {
-            font-size: 12px;
-            color: var(--ink-soft);
-            margin-top: 10px;
-            font-family: var(--font-mono);
-        }
+        .search-filter-form {
 
-        .assign-list div {
-            padding: 5px 0;
-            border-top: 1px dashed var(--rule);
-        }
-
-        .inline-form {
             display: flex;
-            gap: 8px;
-            align-items: flex-end;
+
+            align-items: center;
+
+            gap: 10px;
         }
 
-        .inline-form > div {
+
+        /* Search */
+
+        .search-box {
+
+            position: relative;
+
             flex: 1;
         }
 
-        .inline-form label {
-            display: block;
-            font-size: 10px;
-            text-transform: uppercase;
+
+        .search-icon {
+
+            position: absolute;
+
+            left: 12px;
+
+            top: 50%;
+
+            transform: translateY(-50%);
+
             color: var(--ink-faint);
-            margin-bottom: 4px;
+
+            font-size: 18px;
+
+            pointer-events: none;
         }
 
 
-        /* =============================
-           CONTENT TOOLS
-           ============================= */
+        .search-input {
 
-        .tool-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .tool-button {
             width: 100%;
+
+            height: 40px;
+
             margin: 0;
-            text-align: left;
-            padding: 12px 14px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: all 0.18s ease;
+
+            padding: 8px 12px 8px 36px;
+
+            border: 1px solid var(--rule);
+
+            border-radius: 6px;
+
+            background: var(--paper);
+
+            color: var(--ink);
+
+            font-family: var(--font-sans);
+
+            font-size: 13px;
         }
 
-        .tool-button:hover {
-            transform: translateY(-1px);
+
+        .search-input:focus {
+
+            outline: none;
+
             border-color: var(--blue);
+        }
+
+
+        .search-input::placeholder {
+
+            color: var(--ink-faint);
+        }
+
+
+        /* Select */
+
+        .filter-select {
+
+            width: auto;
+
+            min-width: 150px;
+
+            height: 40px;
+
+            margin: 0;
+
+            padding: 8px 11px;
+
+            border: 1px solid var(--rule);
+
+            border-radius: 6px;
+
+            background: var(--paper);
+
+            color: var(--ink);
+
+            font-family: var(--font-sans);
+
+            font-size: 12px;
+
+            cursor: pointer;
+        }
+
+
+        .filter-select:focus {
+
+            outline: none;
+
+            border-color: var(--blue);
+        }
+
+
+        /* Apply */
+
+        .filter-btn {
+
+            height: 40px;
+
+            padding: 0 18px;
+
+            border: none;
+
+            border-radius: 6px;
+
+            background: var(--ink);
+
+            color: var(--card);
+
+            font-family: var(--font-sans);
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+            cursor: pointer;
+        }
+
+
+        .filter-btn:hover {
+
+            background: var(--blue);
+        }
+
+
+        /* Clear */
+
+        .clear-filter {
+
+            color: var(--red);
+
+            font-family: var(--font-mono);
+
+            font-size: 10px;
+
+            text-decoration: none;
+
+            white-space: nowrap;
+        }
+
+
+        .clear-filter:hover {
+
+            text-decoration: underline;
+        }
+
+
+        /* =====================================================
+           ACTIVE FILTER INFO
+        ===================================================== */
+
+        .filter-info {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            margin-bottom: 14px;
+
+            color: var(--ink-faint);
+
+            font-family: var(--font-mono);
+
+            font-size: 10px;
+        }
+
+
+        /* =====================================================
+           CONTENT LIST
+        ===================================================== */
+
+        .content-list {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 10px;
+        }
+
+
+        .content-card {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            gap: 20px;
+
+            padding: 18px 20px;
+
+            background: var(--card);
+
+            border: 1px solid var(--rule);
+
+            border-radius: 8px;
+
+            text-decoration: none;
+
+            color: inherit;
+
+            transition:
+                border-color 0.15s ease,
+                transform 0.15s ease,
+                box-shadow 0.15s ease;
+        }
+
+
+        .content-card:hover {
+
+            border-color: var(--rule-strong);
+
+            transform: translateY(-1px);
+
+            box-shadow:
+                0 5px 18px rgba(32, 40, 58, 0.06);
+        }
+
+
+        .content-main {
+
+            min-width: 0;
+
+            flex: 1;
+        }
+
+
+        .content-title {
+
+            margin: 0 0 6px;
+
+            font-family: var(--font-display);
+
+            font-size: 19px;
+
+            font-weight: 600;
+
+            color: var(--ink);
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+            white-space: nowrap;
+        }
+
+
+        .content-preview {
+
+            margin: 0 0 9px;
+
+            color: var(--ink-soft);
+
+            font-size: 12px;
+
+            line-height: 1.5;
+
+            display: -webkit-box;
+
+            -webkit-line-clamp: 2;
+
+            -webkit-box-orient: vertical;
+
+            overflow: hidden;
+        }
+
+
+        .content-meta {
+
+            color: var(--ink-faint);
+
+            font-family: var(--font-mono);
+
+            font-size: 9px;
+
+            letter-spacing: 0.02em;
+        }
+
+
+        /* =====================================================
+           STATUS
+        ===================================================== */
+
+        .content-side {
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: flex-end;
+
+            gap: 8px;
+
+            flex-shrink: 0;
+        }
+
+
+        .status {
+
+            display: inline-block;
+
+            padding: 4px 9px;
+
+            border: 1.5px solid currentColor;
+
+            border-radius: 3px;
+
+            font-family: var(--font-mono);
+
+            font-size: 9px;
+
+            font-weight: 500;
+
+            letter-spacing: 0.07em;
+
+            text-transform: uppercase;
+        }
+
+
+        .status-draft {
+
+            color: var(--gray);
+        }
+
+
+        .status-in_review {
+
+            color: var(--amber);
+        }
+
+
+        .status-approved {
+
+            color: var(--green);
+        }
+
+
+        .status-rejected {
+
+            color: var(--red);
+        }
+
+
+        .status-published {
+
             color: var(--blue);
         }
 
-        .tool-arrow {
+
+        .open-arrow {
+
             color: var(--ink-faint);
+
             font-size: 15px;
         }
 
 
-        /* =============================
-           POPUP
-           ============================= */
+        /* =====================================================
+           EMPTY STATE
+        ===================================================== */
 
-        .popup-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
+        .empty-card {
 
-            display: none;
+            padding: 55px 20px;
 
-            align-items: center;
-            justify-content: center;
-
-            padding: 24px;
-
-            background: rgba(32, 40, 58, 0.52);
-
-            backdrop-filter: blur(3px);
-        }
-
-        .popup-overlay.active {
-            display: flex;
-        }
-
-        .popup {
-            width: min(760px, 95vw);
-            max-height: 85vh;
+            text-align: center;
 
             background: var(--card);
 
             border: 1px solid var(--rule);
 
-            border-radius: 10px;
-
-            box-shadow:
-                0 25px 70px rgba(32, 40, 58, 0.28);
-
-            overflow: hidden;
-
-            animation: popupAppear 0.18s ease;
+            border-radius: 8px;
         }
 
-        @keyframes popupAppear {
 
-            from {
-                opacity: 0;
-                transform: translateY(12px) scale(0.985);
-            }
+        .empty-icon {
 
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+            margin-bottom: 10px;
+
+            font-size: 25px;
+
+            opacity: 0.55;
         }
 
-        .popup-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
 
-            padding: 18px 22px;
+        .empty-title {
 
-            border-bottom: 1px solid var(--rule);
-        }
-
-        .popup-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .popup-title h2 {
-            margin: 0;
+            margin-bottom: 5px;
 
             font-family: var(--font-display);
-            font-size: 20px;
-            font-weight: 700;
+
+            font-size: 18px;
+
+            font-weight: 600;
         }
 
-        .popup-subtitle {
-            margin: 4px 0 0;
+
+        .empty-text {
 
             color: var(--ink-faint);
-            font-size: 11px;
-            font-family: var(--font-mono);
-        }
 
-        .popup-close {
-            width: 32px;
-            height: 32px;
-
-            border: none;
-            border-radius: 6px;
-
-            background: transparent;
-
-            color: var(--ink-soft);
-
-            font-size: 23px;
-            line-height: 1;
-
-            cursor: pointer;
-        }
-
-        .popup-close:hover {
-            background: var(--red-bg);
-            color: var(--red);
-        }
-
-        .popup-body {
-            padding: 22px;
-            max-height: calc(85vh - 75px);
-            overflow-y: auto;
+            font-size: 12px;
         }
 
 
-        /* =============================
-           HISTORY
-           ============================= */
+        /* =====================================================
+           PAGINATION
+        ===================================================== */
 
-        .history-list {
-            position: relative;
-            padding-left: 26px;
+        .pagination {
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+            gap: 8px;
+
+            margin-top: 24px;
         }
 
-        .history-list::before {
-            content: "";
 
-            position: absolute;
+        .page-link {
 
-            left: 6px;
-            top: 5px;
-            bottom: 5px;
+            padding: 7px 11px;
 
-            width: 1px;
+            border: 1px solid var(--rule);
 
-            background: var(--rule-strong);
-        }
+            border-radius: 5px;
 
-        .history-item {
-            position: relative;
-
-            padding: 0 0 22px 14px;
-        }
-
-        .history-item:last-child {
-            padding-bottom: 0;
-        }
-
-        .history-item::before {
-            content: "";
-
-            position: absolute;
-
-            left: -24px;
-            top: 3px;
-
-            width: 8px;
-            height: 8px;
-
-            border-radius: 50%;
-
-            background: var(--blue);
-
-            border: 2px solid var(--card);
-        }
-
-        .history-action {
-            font-size: 13px;
-            font-weight: 600;
+            background: var(--card);
 
             color: var(--ink);
 
-            margin-bottom: 4px;
-        }
-
-        .history-meta {
             font-family: var(--font-mono);
 
             font-size: 10px;
 
-            color: var(--ink-faint);
-        }
-
-        .history-details {
-            margin-top: 6px;
-
-            font-size: 12px;
-            line-height: 1.5;
-
-            color: var(--ink-soft);
-        }
-
-        .history-empty {
-            text-align: center;
-
-            padding: 35px 10px;
-
-            color: var(--ink-faint);
-
-            font-size: 12px;
-        }
-
-        .history-loading {
-            text-align: center;
-
-            padding: 35px;
-
-            color: var(--ink-faint);
-
-            font-size: 12px;
+            text-decoration: none;
         }
 
 
-        /* =============================
-           COMPARE FORM
-           ============================= */
+        .page-link:hover {
 
-        .compare-intro {
-            color: var(--ink-soft);
-
-            font-size: 13px;
-
-            line-height: 1.6;
-
-            margin: 0 0 20px;
-        }
-
-        .compare-form {
-            display: grid;
-
-            grid-template-columns: 1fr 1fr;
-
-            gap: 16px;
-        }
-
-        .compare-field label {
-            display: block;
-
-            margin-bottom: 6px;
-
-            font-size: 10px;
-
-            text-transform: uppercase;
-
-            letter-spacing: 0.07em;
-
-            color: var(--ink-faint);
-
-            font-weight: 600;
-        }
-
-        .compare-field select {
-            margin: 0;
-        }
-
-        .compare-submit {
-            grid-column: 1 / -1;
-
-            width: 100%;
-
-            margin: 4px 0 0;
-        }
-
-        .version-count {
-            display: inline-block;
-
-            padding: 3px 8px;
-
-            border-radius: 20px;
-
-            background: var(--blue-bg);
+            border-color: var(--blue);
 
             color: var(--blue);
+        }
+
+
+        .page-current {
+
+            padding: 7px 11px;
+
+            background: var(--ink);
+
+            color: var(--card);
+
+            border-radius: 5px;
 
             font-family: var(--font-mono);
 
             font-size: 10px;
         }
 
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
 
         @media (max-width: 850px) {
 
             .page {
-                padding: 24px 18px 50px;
+
+                padding: 25px 18px 50px;
             }
 
-            .grid {
-                grid-template-columns: 1fr;
+
+            .top-bar {
+
+                align-items: flex-start;
+
+                gap: 15px;
             }
 
-            .inline-form {
+
+            h1 {
+
+                font-size: 27px;
+            }
+
+
+            .search-filter-form {
+
                 flex-direction: column;
+
                 align-items: stretch;
             }
 
-            .compare-form {
-                grid-template-columns: 1fr;
-            }
 
-            .compare-submit {
-                grid-column: auto;
-            }
+            .search-box {
 
-            .popup-overlay {
-                padding: 12px;
-            }
-
-            .popup {
                 width: 100%;
-                max-height: 90vh;
+            }
+
+
+            .filter-select {
+
+                width: 100%;
+            }
+
+
+            .filter-btn {
+
+                width: 100%;
+            }
+
+
+            .clear-filter {
+
+                text-align: center;
+
+                padding: 4px;
+            }
+
+
+            .content-card {
+
+                align-items: flex-start;
+            }
+
+        }
+
+
+        @media (max-width: 600px) {
+
+            .top-bar {
+
+                flex-direction: column;
+            }
+
+
+            .create-btn {
+
+                width: 100%;
+
+                justify-content: center;
+            }
+
+
+            .content-card {
+
+                flex-direction: column;
+            }
+
+
+            .content-side {
+
+                width: 100%;
+
+                flex-direction: row;
+
+                justify-content: space-between;
+
+                align-items: center;
+            }
+
+
+            .content-title {
+
+                white-space: normal;
             }
 
         }
 
     </style>
+
 </head>
 
 
 <body>
 
+
 <div class="page">
 
-    <a class="back-link" href="{% url 'content_list' %}">
-        All content
-    </a>
+
+    <!-- =====================================================
+         HEADER
+    ===================================================== -->
+
+    <div class="top-bar">
+
+        <div>
+
+            <div class="eyebrow">
+                CVDM / Content Management
+            </div>
+
+            <h1>
+                Content
+            </h1>
+
+            <p class="header-description">
+                Manage drafts, reviews, versions and published content.
+            </p>
+
+        </div>
 
 
-    <div class="top-row">
+        {% if can_create %}
 
-        <h1>
-            {{ content.title }}
-        </h1>
-
-        <span class="stamp stamp-{{ content.status }}">
-            {{ content.get_status_display }}
-        </span>
-
-    </div>
-
-
-    <div class="meta-line">
-
-        by {{ content.created_by.username }}
-
-        · created {{ content.created_at|date:"d M Y" }}
-
-        {% if content.scheduled_at %}
-
-            · scheduled for
-            {{ content.scheduled_at|date:"d M Y, h:i A" }}
+            <a
+                href="{% url 'content_create' %}"
+                class="create-btn"
+            >
+                + Create content
+            </a>
 
         {% endif %}
 
     </div>
 
 
-    {% if messages %}
 
-        <div class="messages">
+    <!-- =====================================================
+         SEARCH & FILTERS
+    ===================================================== -->
 
-            {% for message in messages %}
+    <div class="search-filter-card">
 
-                <div class="msg msg-{{ message.tags }}">
-                    {{ message }}
-                </div>
-
-            {% endfor %}
-
-        </div>
-
-    {% endif %}
-
-
-    <div class="grid">
-
-
-        <!-- =============================
-             LEFT COLUMN
-        ============================= -->
-
-        <div>
-
-
-            <!-- CONTENT EDITOR -->
-
-            <div class="card">
-
-                <form method="post">
-
-                    {% csrf_token %}
-
-
-                    <input
-                        type="text"
-                        name="title"
-                        value="{{ content.title }}"
-                        {% if not can_edit %}disabled{% endif %}
-                    />
-
-
-                    <textarea
-                        name="body"
-                        {% if not can_edit %}disabled{% endif %}
-                    >{{ content.body }}</textarea>
-
-
-                    <div class="actions-row">
-
-
-                        {% if can_edit %}
-
-                            <button
-                                type="submit"
-                                name="action"
-                                value="save"
-                                class="btn btn-primary"
-                            >
-                                Save version
-                            </button>
-
-
-                            <button
-                                type="submit"
-                                name="action"
-                                value="run_ai"
-                                class="btn btn-outline"
-                            >
-                                Run AI check
-                            </button>
-
-                        {% endif %}
-
-
-                        {% if can_submit %}
-
-                            <button
-                                type="submit"
-                                name="action"
-                                value="submit"
-                                class="btn btn-outline"
-                            >
-                                Submit for review
-                            </button>
-
-                        {% endif %}
-
-
-                        {% if can_approve_reject %}
-
-                            <button
-                                type="submit"
-                                name="action"
-                                value="approve"
-                                class="btn btn-success"
-                            >
-                                Approve
-                            </button>
-
-
-                            <button
-                                type="submit"
-                                name="action"
-                                value="reject"
-                                class="btn btn-danger"
-                            >
-                                Reject
-                            </button>
-
-                        {% endif %}
-
-
-                        {% if can_publish %}
-
-                            <button
-                                type="submit"
-                                name="action"
-                                value="publish"
-                                class="btn btn-primary"
-                            >
-                                Publish now
-                            </button>
-
-                        {% endif %}
-
-                    </div>
-
-                </form>
-
-            </div>
-
-
-            <!-- SCHEDULED PUBLISHING -->
-
-            {% if can_publish %}
-
-            <div class="card">
-
-                <h3>
-                    Scheduled publishing
-                </h3>
-
-
-                {% if content.scheduled_at %}
-
-                    <p class="muted">
-
-                        Currently scheduled for
-                        {{ content.scheduled_at|date:"d M Y, h:i A" }}.
-
-                    </p>
-
-
-                    <form method="post">
-
-                        {% csrf_token %}
-
-                        <button
-                            type="submit"
-                            name="action"
-                            value="cancel_schedule"
-                            class="btn btn-outline"
-                        >
-                            Cancel schedule
-                        </button>
-
-                    </form>
-
-
-                {% else %}
-
-                    <form
-                        method="post"
-                        class="inline-form"
-                    >
-
-                        {% csrf_token %}
-
-
-                        <div>
-
-                            <label for="scheduled_at">
-                                Publish at
-                            </label>
-
-
-                            <input
-                                type="datetime-local"
-                                id="scheduled_at"
-                                name="scheduled_at"
-                                required
-                            />
-
-                        </div>
-
-
-                        <button
-                            type="submit"
-                            name="action"
-                            value="schedule"
-                            class="btn btn-outline"
-                        >
-                            Schedule
-                        </button>
-
-                    </form>
-
-                {% endif %}
-
-            </div>
-
-            {% endif %}
-
+        <div class="filter-heading">
+            Search & Filters
         </div>
 
 
-        <!-- =============================
-             RIGHT COLUMN
-             ============================= -->
-
-        <div>
-
-
-            <!-- AI REVIEW -->
-
-            <div class="card">
-
-                <h3>
-                    AI pre-review
-                </h3>
+        <form
+            method="get"
+            class="search-filter-form"
+        >
 
 
-                {% if latest_ai_review and latest_ai_review.status == "completed" %}
+            <!-- SEARCH -->
 
-                    <div class="ai-score-row">
+            <div class="search-box">
 
-                        <div class="ai-score">
-                            {{ latest_ai_review.score|default:"—" }}
-                        </div>
+                <span class="search-icon">
+                    ⌕
+                </span>
 
-                        <div class="ai-score-label">
-                            clarity score
-                        </div>
-
-                    </div>
-
-
-                    <p class="ai-summary">
-                        {{ latest_ai_review.summary }}
-                    </p>
-
-
-                    {% for issue in latest_ai_review.issues %}
-
-                        <div class="ai-issue">
-
-                            <span class="ai-issue-type">
-                                {{ issue.type }}
-                            </span>
-
-                            {{ issue.message }}
-
-                        </div>
-
-
-                    {% empty %}
-
-                        <p class="muted">
-                            No issues flagged.
-                        </p>
-
-                    {% endfor %}
-
-
-                {% elif latest_ai_review and latest_ai_review.status == "failed" %}
-
-                    <p class="muted">
-
-                        AI review failed:
-                        {{ latest_ai_review.error_message }}
-
-                    </p>
-
-
-                {% else %}
-
-                    <p class="muted">
-                        No AI review yet.
-                    </p>
-
-                {% endif %}
+                <input
+                    type="text"
+                    name="q"
+                    class="search-input"
+                    value="{{ request.GET.q|default:'' }}"
+                    placeholder="Search by title or content..."
+                >
 
             </div>
 
 
-            <!-- ASSIGN REVIEWER -->
 
-            {% if can_assign %}
+            <!-- STATUS -->
 
-            <div class="card">
+            <select
+                name="status"
+                class="filter-select"
+            >
 
-                <h3>
-                    Assign reviewer
-                </h3>
+                <option value="">
+                    All statuses
+                </option>
 
+                <option
+                    value="draft"
+                    {% if request.GET.status == "draft" %}selected{% endif %}
+                >
+                    Draft
+                </option>
 
-                <form method="post">
+                <option
+                    value="in_review"
+                    {% if request.GET.status == "in_review" %}selected{% endif %}
+                >
+                    In Review
+                </option>
 
-                    {% csrf_token %}
+                <option
+                    value="approved"
+                    {% if request.GET.status == "approved" %}selected{% endif %}
+                >
+                    Approved
+                </option>
 
+                <option
+                    value="rejected"
+                    {% if request.GET.status == "rejected" %}selected{% endif %}
+                >
+                    Rejected
+                </option>
 
-                    <select
-                        name="reviewer_id"
-                        required
-                    >
+                <option
+                    value="published"
+                    {% if request.GET.status == "published" %}selected{% endif %}
+                >
+                    Published
+                </option>
 
-                        <option value="">
-                            Select a reviewer…
-                        </option>
-
-
-                        {% for reviewer in eligible_reviewers %}
-
-                            <option value="{{ reviewer.id }}">
-                                {{ reviewer.username }}
-                            </option>
-
-                        {% endfor %}
-
-                    </select>
-
-
-                    <input
-                        type="text"
-                        name="note"
-                        placeholder="Optional note"
-                    />
-
-
-                    <button
-                        type="submit"
-                        name="action"
-                        value="assign"
-                        class="btn btn-outline"
-                    >
-                        Assign
-                    </button>
-
-                </form>
+            </select>
 
 
-                {% if assignments %}
 
-                    <div class="assign-list">
+            <!-- SORT -->
 
-                        {% for a in assignments %}
+            <select
+                name="sort"
+                class="filter-select"
+            >
 
-                            <div>
+                <option
+                    value="updated"
+                    {% if request.GET.sort == "updated" or not request.GET.sort %}selected{% endif %}
+                >
+                    Recently updated
+                </option>
 
-                                {{ a.reviewer.username }}
+                <option
+                    value="created"
+                    {% if request.GET.sort == "created" %}selected{% endif %}
+                >
+                    Recently created
+                </option>
 
-                                —
+                <option
+                    value="title"
+                    {% if request.GET.sort == "title" %}selected{% endif %}
+                >
+                    Title A–Z
+                </option>
 
-                                {{ a.get_status_display }}
+            </select>
 
-                            </div>
 
-                        {% endfor %}
 
-                    </div>
+            <!-- APPLY -->
 
-                {% endif %}
+            <button
+                type="submit"
+                class="filter-btn"
+            >
+                Apply
+            </button>
 
-            </div>
+
+
+            <!-- CLEAR -->
+
+            {% if request.GET.q or request.GET.status or request.GET.sort %}
+
+                <a
+                    href="{% url 'content_list' %}"
+                    class="clear-filter"
+                >
+                    Clear
+                </a>
 
             {% endif %}
 
 
-            <!-- VERSIONS -->
-
-            <div class="card">
-
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-
-                    <h3 style="margin:0;">
-                        Versions
-                    </h3>
-
-                    <span class="version-count">
-                        {{ versions|length }} total
-                    </span>
-
-                </div>
-
-
-                {% for v in versions %}
-
-                    <div class="version-item">
-
-                        <div>
-
-                            <span class="version-num">
-                                v{{ v.version_number }}
-                            </span>
-
-                            <div class="version-note">
-                                {{ v.change_note|default:"—" }}
-                            </div>
-
-                        </div>
-
-
-                        <form method="post">
-
-                            {% csrf_token %}
-
-
-                            <input
-                                type="hidden"
-                                name="version_id"
-                                value="{{ v.id }}"
-                            />
-
-
-                            <button
-                                type="submit"
-                                name="action"
-                                value="restore"
-                                class="btn btn-outline"
-                                style="padding:5px 10px;font-size:11px;"
-                            >
-                                Restore
-                            </button>
-
-                        </form>
-
-                    </div>
-
-                {% empty %}
-
-                    <p class="muted">
-                        No versions yet.
-                    </p>
-
-                {% endfor %}
-
-            </div>
-
-
-            <!-- =============================
-                 CONTENT TOOLS
-                 ============================= -->
-
-            <div class="card">
-
-                <h3>
-                    Content tools
-                </h3>
-
-
-                <div class="tool-buttons">
-
-
-                    <!-- REVIEW HISTORY -->
-
-                    <button
-                        type="button"
-                        class="btn btn-outline tool-button"
-                        onclick="openPopup('historyPopup')"
-                    >
-
-                        <span>
-                            📜 &nbsp; Review History
-                        </span>
-
-                        <span class="tool-arrow">
-                            →
-                        </span>
-
-                    </button>
-
-
-                    <!-- COMPARE VERSIONS -->
-
-                    {% if versions|length >= 2 %}
-
-                    <button
-                        type="button"
-                        class="btn btn-outline tool-button"
-                        onclick="openPopup('comparePopup')"
-                    >
-
-                        <span>
-                            🔀 &nbsp; Compare Versions
-                        </span>
-
-                        <span class="tool-arrow">
-                            →
-                        </span>
-
-                    </button>
-
-                    {% else %}
-
-                    <button
-                        type="button"
-                        class="btn btn-outline tool-button"
-                        disabled
-                        style="opacity:.55;cursor:not-allowed;"
-                    >
-
-                        <span>
-                            🔀 &nbsp; Compare Versions
-                        </span>
-
-                        <span>
-                            Need 2 versions
-                        </span>
-
-                    </button>
-
-                    {% endif %}
-
-                </div>
-
-            </div>
-
-
-        </div>
+        </form>
 
     </div>
 
-</div>
+
+
+    <!-- =====================================================
+         RESULT INFO
+    ===================================================== -->
+
+    <div class="filter-info">
+
+        <span>
+
+            {% if contents %}
+                {{ contents|length }} content item{{ contents|length|pluralize }}
+            {% else %}
+                0 content items
+            {% endif %}
+
+        </span>
+
+
+        {% if request.GET.q %}
+
+            <span>
+                Search: "{{ request.GET.q }}"
+            </span>
+
+        {% endif %}
+
+    </div>
 
 
 
-<!-- =====================================================
-     REVIEW HISTORY POPUP
-     ===================================================== -->
+    <!-- =====================================================
+         CONTENT LIST
+    ===================================================== -->
 
-<div
-    id="historyPopup"
-    class="popup-overlay"
-    onclick="closePopupOutside(event, 'historyPopup')"
->
+    <div class="content-list">
 
 
-    <div class="popup">
+        {% for item in contents %}
 
 
-        <div class="popup-header">
+            <a
+                href="{% url 'content_detail' item.id %}"
+                class="content-card"
+            >
 
 
-            <div class="popup-title">
+                <div class="content-main">
 
-                <div>
 
-                    <h2>
-                        📜 Review History
+                    <h2 class="content-title">
+
+                        {{ item.title }}
+
                     </h2>
 
-                    <p class="popup-subtitle">
-                        Activity recorded for this content
+
+                    <p class="content-preview">
+
+                        {{ item.body|truncatechars:180 }}
+
                     </p>
 
-                </div>
 
-            </div>
+                    <div class="content-meta">
 
+                        BY {{ item.created_by.username|upper }}
 
-            <button
-                type="button"
-                class="popup-close"
-                onclick="closePopup('historyPopup')"
-                aria-label="Close"
-            >
-                ×
-            </button>
+                        ·
 
-        </div>
+                        UPDATED
+                        {{ item.updated_at|date:"d M Y, h:i A" }}
 
+                        {% if item.scheduled_at %}
 
-        <div class="popup-body">
+                            ·
 
-            <div
-                id="historyList"
-                class="history-list"
-            >
+                            SCHEDULED
+                            {{ item.scheduled_at|date:"d M Y, h:i A" }}
 
-                <div class="history-loading">
-                    Loading activity...
-                </div>
+                        {% endif %}
 
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-
-<!-- =====================================================
-     COMPARE VERSIONS POPUP
-     ===================================================== -->
-
-<div
-    id="comparePopup"
-    class="popup-overlay"
-    onclick="closePopupOutside(event, 'comparePopup')"
->
-
-
-    <div class="popup">
-
-
-        <div class="popup-header">
-
-
-            <div>
-
-                <h2>
-                    🔀 Compare Versions
-                </h2>
-
-                <p class="popup-subtitle">
-                    Select two versions to see what changed
-                </p>
-
-            </div>
-
-
-            <button
-                type="button"
-                class="popup-close"
-                onclick="closePopup('comparePopup')"
-                aria-label="Close"
-            >
-                ×
-            </button>
-
-        </div>
-
-
-        <div class="popup-body">
-
-
-            <p class="compare-intro">
-
-                Select the older version and the newer version.
-                CVDM will show the exact changes between them.
-
-            </p>
-
-
-            <form
-                method="get"
-                action="{% url 'content_diff' content.id %}"
-                class="compare-form"
-            >
-
-
-                <div class="compare-field">
-
-                    <label for="fromVersion">
-                        From version
-                    </label>
-
-
-                    <select
-                        id="fromVersion"
-                        name="from"
-                        required
-                    >
-
-                        <option value="">
-                            Select older version
-                        </option>
-
-
-                        {% for v in versions %}
-
-                            <option value="{{ v.id }}">
-                                v{{ v.version_number }}
-                                —
-                                {{ v.change_note|default:"No note" }}
-                            </option>
-
-                        {% endfor %}
-
-                    </select>
-
-                </div>
-
-
-                <div class="compare-field">
-
-                    <label for="toVersion">
-                        To version
-                    </label>
-
-
-                    <select
-                        id="toVersion"
-                        name="to"
-                        required
-                    >
-
-                        <option value="">
-                            Select newer version
-                        </option>
-
-
-                        {% for v in versions %}
-
-                            <option value="{{ v.id }}">
-                                v{{ v.version_number }}
-                                —
-                                {{ v.change_note|default:"No note" }}
-                            </option>
-
-                        {% endfor %}
-
-                    </select>
-
-                </div>
-
-
-                <button
-                    type="submit"
-                    class="btn btn-primary compare-submit"
-                >
-                    Show Changes →
-                </button>
-
-
-            </form>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-
-<script>
-
-    const contentId = "{{ content.id }}";
-
-
-    /* =============================
-       POPUP FUNCTIONS
-       ============================= */
-
-
-    function openPopup(popupId) {
-
-        const popup =
-            document.getElementById(popupId);
-
-        if (!popup) {
-            return;
-        }
-
-        popup.classList.add("active");
-
-        document.body.classList.add("popup-open");
-
-
-        if (popupId === "historyPopup") {
-            loadHistory();
-        }
-
-    }
-
-
-    function closePopup(popupId) {
-
-        const popup =
-            document.getElementById(popupId);
-
-        if (!popup) {
-            return;
-        }
-
-        popup.classList.remove("active");
-
-        document.body.classList.remove("popup-open");
-
-    }
-
-
-    function closePopupOutside(event, popupId) {
-
-        if (event.target.id === popupId) {
-            closePopup(popupId);
-        }
-
-    }
-
-
-    document.addEventListener(
-        "keydown",
-        function(event) {
-
-            if (event.key === "Escape") {
-
-                document
-                    .querySelectorAll(".popup-overlay.active")
-                    .forEach(function(popup) {
-
-                        popup.classList.remove("active");
-
-                    });
-
-                document.body.classList.remove("popup-open");
-
-            }
-
-        }
-    );
-
-
-    /* =============================
-       REVIEW HISTORY
-       ============================= */
-
-
-    async function loadHistory() {
-
-        const historyList =
-            document.getElementById("historyList");
-
-
-        historyList.innerHTML = `
-            <div class="history-loading">
-                Loading activity...
-            </div>
-        `;
-
-
-        try {
-
-            const response =
-                await fetch(
-                    `/api/content/${contentId}/history/`
-                );
-
-
-            if (!response.ok) {
-
-                throw new Error(
-                    "Failed to load history"
-                );
-
-            }
-
-
-            const history =
-                await response.json();
-
-
-            if (!history.length) {
-
-                historyList.innerHTML = `
-                    <div class="history-empty">
-                        No activity recorded yet.
                     </div>
-                `;
-
-                return;
-
-            }
 
 
-            historyList.innerHTML =
-                history.map(function(item) {
-
-                    return `
-
-                        <div class="history-item">
-
-                            <div class="history-action">
-                                ${formatAction(item.action)}
-                            </div>
-
-                            <div class="history-meta">
-
-                                ${escapeHtml(
-                                    item.username || "System"
-                                )}
-
-                                ·
-
-                                ${formatDate(
-                                    item.created_at
-                                )}
-
-                            </div>
-
-
-                            ${
-                                item.details
-                                ?
-                                `
-                                    <div class="history-details">
-                                        ${escapeHtml(item.details)}
-                                    </div>
-                                `
-                                :
-                                ""
-                            }
-
-                        </div>
-
-                    `;
-
-                }).join("");
-
-
-        } catch (error) {
-
-            console.error(
-                "History loading error:",
-                error
-            );
-
-
-            historyList.innerHTML = `
-                <div class="history-empty">
-                    Unable to load review history.
                 </div>
-            `;
-
-        }
-
-    }
 
 
-    function formatAction(action) {
 
-        if (!action) {
-            return "Activity";
-        }
-
-        return action
-            .replaceAll("_", " ")
-            .replace(/\b\w/g, function(char) {
-                return char.toUpperCase();
-            });
-
-    }
+                <div class="content-side">
 
 
-    function formatDate(dateString) {
+                    <span
+                        class="status status-{{ item.status }}"
+                    >
 
-        if (!dateString) {
-            return "";
-        }
+                        {{ item.get_status_display }}
 
-        return new Date(
-            dateString
-        ).toLocaleString();
-
-    }
+                    </span>
 
 
-    function escapeHtml(value) {
+                    <span class="open-arrow">
+                        →
+                    </span>
 
-        const div =
-            document.createElement("div");
 
-        div.textContent =
-            value ?? "";
+                </div>
 
-        return div.innerHTML;
 
-    }
+            </a>
 
-</script>
+
+        {% empty %}
+
+
+            <!-- EMPTY STATE -->
+
+            <div class="empty-card">
+
+                <div class="empty-icon">
+                    ◌
+                </div>
+
+
+                {% if request.GET.q or request.GET.status %}
+
+                    <div class="empty-title">
+                        No matching content
+                    </div>
+
+                    <div class="empty-text">
+                        Try changing your search or filters.
+                    </div>
+
+                {% else %}
+
+                    <div class="empty-title">
+                        No content yet
+                    </div>
+
+                    <div class="empty-text">
+                        Create your first piece of content to get started.
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+        {% endfor %}
+
+
+    </div>
+
+
+</div>
 
 
 </body>
-</html>
 
+</html>
