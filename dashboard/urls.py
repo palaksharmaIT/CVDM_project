@@ -13,6 +13,8 @@ from .views import (
     verify_email_view,
 )
 
+from workflow.views import review_queue_page
+
 
 urlpatterns = [
     path(
@@ -49,6 +51,12 @@ urlpatterns = [
         "review/<int:content_id>/",
         review_content,
         name="review-content",
+    ),
+
+    path(
+        "review-queue/",
+        review_queue_page,
+        name="review-queue",
     ),
 
     path(

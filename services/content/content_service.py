@@ -6,7 +6,6 @@ from content.models import Content
 from audit.models import AuditLog
 from services.audit.audit_service import create_audit_log
 from services.ai.ai_review_service import run_ai_review
-from services.ai.category_service import detect_and_set_category
 from services.workflow.assignment_service import complete_pending_assignments
 
 from .version_service import create_version
@@ -40,8 +39,6 @@ def create_content(*, title, body, user):
         details="Content created.",
     )
 
-    detect_and_set_category(content=content)
-
     return content
 
 
@@ -71,8 +68,6 @@ def update_content(
         action=AuditLog.Action.UPDATE,
         details=change_note,
     )
-
-    detect_and_set_category(content=content)
 
     return content
 

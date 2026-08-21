@@ -96,22 +96,23 @@ class ReviewAssignmentViewSet(viewsets.ReadOnlyModelViewSet):
             status=201,
         )
 
-    @login_required
-    def review_queue_page(request):
-        assignments = (
-            ReviewAssignment.objects
-            .select_related("content", "assigned_by")
-            .prefetch_related("comments__user")
-            .filter(
-                reviewer=request.user,
-                status=ReviewAssignment.Status.PENDING,
-            )
-        )
 
-        return render(
-            request,
-            "workflow/review_queue.html",
-            {
-                "assignments": assignments,
-            },
+@login_required
+def review_queue_page(request):
+    assignments = (
+        ReviewAssignment.objects
+        .select_related("content", "assigned_by")
+        .prefetch_related("comments__user")
+        .filter(
+            reviewer=request.user,
+            status=ReviewAssignment.Status.PENDING,
         )
+    )
+
+    return render(
+        request,
+        "workflow/review_que.html",
+        {
+            "assignments": assignments,
+        },
+    )
