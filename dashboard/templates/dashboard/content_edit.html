@@ -1109,19 +1109,6 @@
 
                     {% csrf_token %}
 
-
-                    {% with reviewer_recommendations|first as top_pick %}
-                        {% if top_pick %}
-                            <div class="recommended-reviewer-hint">
-                                ⭐ Suggested: <strong>{{ top_pick.reviewer.username }}</strong>
-                                ({{ top_pick.workload }} pending, {{ top_pick.expertise_count }} past
-                                review{{ top_pick.expertise_count|pluralize }} in
-                                {{ content.get_category_display }})
-                            </div>
-                        {% endif %}
-                    {% endwith %}
-
-
                     <select
                         name="reviewer_id"
                         required
@@ -1132,11 +1119,10 @@
                         </option>
 
 
-                        {% for r in reviewer_recommendations %}
+                        {% for reviewer in eligible_reviewers %}
 
-                            <option value="{{ r.reviewer.id }}">
-                                {% if r.recommended %}⭐ {% endif %}{{ r.reviewer.username }}
-                                ({{ r.workload }} pending{% if r.expertise_count %}, {{ r.expertise_count }} in {{ content.get_category_display }}{% endif %})
+                            <option value="{{ reviewer.id }}">
+                                {{ reviewer.username }}
                             </option>
 
                         {% endfor %}

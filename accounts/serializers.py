@@ -67,10 +67,10 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         user = User(**validated_data)
         user.set_password(password)
+        user.is_active = False
         user.save()
 
         group, _ = Group.objects.get_or_create(name=role)
         user.groups.add(group)
 
         return user
-    

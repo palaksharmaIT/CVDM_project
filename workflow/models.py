@@ -73,4 +73,4 @@ class ReviewComment(models.Model):
         return (
             f"Comment by {self.user} "
             f"on '{self.assignment.content}'"
-        )    
+        ) 

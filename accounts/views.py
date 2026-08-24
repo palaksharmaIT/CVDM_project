@@ -1,4 +1,7 @@
 from django.contrib.auth import authenticate, get_user_model
+from django.conf import settings as dj_settings
+from django.core.mail import send_mail
+from django.urls import reverse
 
 from rest_framework import status
 from rest_framework.authtoken.models import Token
@@ -9,6 +12,7 @@ from rest_framework.views import APIView
 
 
 from .serializers import RegisterSerializer, UserSerializer
+from .models import EmailVerification
 
 
 User = get_user_model()
@@ -22,11 +26,31 @@ class RegisterView(APIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
-        token, _ = Token.objects.get_or_create(user=user)
+        verification = EmailVerification.objects.create(user=user)
+
+        verify_url = request.build_absolute_uri(
+            reverse("verify-email", args=[verification.token])
+        )
+
+        send_mail(
+            subject="Verify your CVDM account",
+            message=(
+                f"Hi {user.username},\n\n"
+                f"Click the link below to verify your email and "
+                f"activate your CVDM account:\n\n{verify_url}\n\n"
+                f"If you didn't request this, ignore this email."
+            ),
+            from_email=dj_settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
 
         return Response(
             {
-                "token": token.key,
+                "detail": (
+                    "Registration successful. Check your email to "
+                    "verify your account before logging in."
+                ),
                 "user": UserSerializer(user).data,
             },
             status=status.HTTP_201_CREATED,

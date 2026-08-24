@@ -15,6 +15,11 @@ from .permissions import (
     IsEditor,
     IsAdmin,
     CanApproveContent,
+    IsContentOwnerOrAdmin,
+    CanEditContent,
+    CanViewContent,
+    CanAssignReviewer,
+    CanSubmitForReview,
 )
 
 from ai_review.serializers import AIReviewResultSerializer
@@ -45,7 +50,7 @@ User = get_user_model()
 class ContentViewSet(viewsets.ModelViewSet):
 
     serializer_class = ContentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsContentOwnerOrAdmin]
 
     def get_queryset(self):
         return Content.objects.select_related("created_by").all()
@@ -82,6 +87,7 @@ class ContentViewSet(viewsets.ModelViewSet):
         detail=True,
         methods=["get"],
         url_path="versions",
+        permission_classes=[IsAuthenticated, CanViewContent],
     )
     def versions(self, request, pk=None):
         content = self.get_object()
@@ -99,6 +105,7 @@ class ContentViewSet(viewsets.ModelViewSet):
         detail=True,
         methods=["post"],
         url_path=r"versions/(?P<version_id>\d+)/restore",
+        permission_classes=[IsAuthenticated, CanEditContent],
     )
     def restore_version(
         self,
@@ -135,6 +142,7 @@ class ContentViewSet(viewsets.ModelViewSet):
         detail=True,
         methods=["get"],
         url_path="diff",
+        permission_classes=[IsAuthenticated, CanViewContent],
     )
     def diff(self, request, pk=None):
         """
@@ -191,6 +199,7 @@ class ContentViewSet(viewsets.ModelViewSet):
         detail=True,
         methods=["post"],
         url_path="ai-review",
+        permission_classes=[IsAuthenticated, CanViewContent],
     )
     def ai_review(self, request, pk=None):
         """
@@ -218,6 +227,7 @@ class ContentViewSet(viewsets.ModelViewSet):
         detail=True,
         methods=["get"],
         url_path="ai-review/latest",
+        permission_classes=[IsAuthenticated, CanViewContent],
     )
     def latest_ai_review(self, request, pk=None):
         content = self.get_object()
@@ -238,7 +248,7 @@ class ContentViewSet(viewsets.ModelViewSet):
         detail=True,
         methods=["post"],
         url_path="assign-reviewer",
-        permission_classes=[IsAuthor | IsEditor | IsAdmin],
+        permission_classes=[IsAuthenticated, CanAssignReviewer],
     )
     def assign_reviewer_action(self, request, pk=None):
         """
@@ -270,7 +280,7 @@ class ContentViewSet(viewsets.ModelViewSet):
         detail=True,
         methods=["post"],
         url_path="submit-review",
-        permission_classes=[IsAuthor | IsAdmin],
+        permission_classes=[IsAuthenticated, CanSubmitForReview],
     )
     def submit_review(self, request, pk=None):
         content = self.get_object()
@@ -431,10 +441,11 @@ class ContentViewSet(viewsets.ModelViewSet):
         )
     
     @action(
-    detail=True,
-    methods=["get"],
-    url_path="history",
-)
+        detail=True,
+        methods=["get"],
+        url_path="history",
+        permission_classes=[IsAuthenticated, CanViewContent],
+    )
     def history(self, request, pk=None):
         content = self.get_object()
 

@@ -17,11 +17,21 @@ class ReviewAssignmentViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        user = self.request.user
+
         queryset = ReviewAssignment.objects.select_related(
             "content",
             "reviewer",
             "assigned_by",
         ).all()
+
+        is_admin_or_editor = (
+            user.is_superuser
+            or user.groups.filter(name__in=["Admin", "Editor"]).exists()
+        )
+
+        if not is_admin_or_editor:
+            queryset = queryset.filter(reviewer=user)
 
         content_id = self.request.query_params.get("content")
 
@@ -62,6 +72,18 @@ class ReviewAssignmentViewSet(viewsets.ReadOnlyModelViewSet):
     def comments(self, request, pk=None):
 
         assignment = self.get_object()
+
+        user = request.user
+        is_admin_or_editor = (
+            user.is_superuser
+            or user.groups.filter(name__in=["Admin", "Editor"]).exists()
+        )
+
+        if not is_admin_or_editor and assignment.reviewer_id != user.id:
+            return Response(
+                {"detail": "You do not have access to this assignment."},
+                status=403,
+            )
 
         # GET comments
         if request.method == "GET":

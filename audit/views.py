@@ -10,7 +10,19 @@ class AuditLogViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return AuditLog.objects.select_related(
+        user = self.request.user
+
+        queryset = AuditLog.objects.select_related(
             "user",
             "content",
         ).all()
+
+        is_admin_or_editor = (
+            user.is_superuser
+            or user.groups.filter(name__in=["Admin", "Editor"]).exists()
+        )
+
+        if not is_admin_or_editor:
+            queryset = queryset.filter(content__created_by=user)
+
+        return queryset

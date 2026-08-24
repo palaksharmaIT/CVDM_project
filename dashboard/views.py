@@ -16,6 +16,7 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from django.conf import settings as dj_settings
 from django.core.mail import send_mail
 from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from accounts.models import EmailVerification
 
@@ -381,7 +382,7 @@ def content_edit(request, content_id):
                 assign_reviewer(content=content, reviewer=reviewer, assigned_by=request.user, note=note)
                 messages.success(request, f"Assigned {reviewer.username} as reviewer.")
 
-            elif action == "restore":
+            elif action == "restore" and can_edit:
                 version_id = request.POST.get("version_id")
                 version = get_object_or_404(ContentVersion, id=version_id, content=content)
                 restore_version(content=content, version=version, user=request.user)
@@ -525,7 +526,15 @@ def login_view(request):
 
             if user is not None:
                 auth_login(request, user)
-                return redirect(next_url or "dashboard")
+
+                if next_url and url_has_allowed_host_and_scheme(
+                    next_url,
+                    allowed_hosts={request.get_host()},
+                    require_https=request.is_secure(),
+                ):
+                    return redirect(next_url)
+
+                return redirect("dashboard")
 
             messages.error(request, "Invalid username or password.")
 
