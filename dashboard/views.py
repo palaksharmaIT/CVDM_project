@@ -21,6 +21,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from accounts.models import EmailVerification
 
 from content.models import Content
+from dashboard.email_service import send_verification_email
 from versions.models import ContentVersion
 from ai_review.models import AIReviewResult
 from notifications.models import Notification
@@ -583,6 +584,7 @@ def register_view(request):
                 password=password,
                 is_active=False,
             )
+            print(">>>>>>>user created", user);
 
             group, _ = Group.objects.get_or_create(name=role)
             user.groups.add(group)
@@ -592,19 +594,22 @@ def register_view(request):
             verify_url = request.build_absolute_uri(
                 reverse("verify-email", args=[verification.token])
             )
+            print(">>>>>>>verify_url", verify_url);
 
-            send_mail(
-                subject="Verify your CVDM account",
-                message=(
-                    f"Hi {username},\n\n"
-                    f"Click the link below to verify your email and "
-                    f"activate your CVDM account:\n\n{verify_url}\n\n"
-                    f"If you didn't request this, ignore this email."
-                ),
-                from_email=dj_settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[email],
-                fail_silently=False,
-            )
+            # send_mail(
+            #     subject="Verify your CVDM account",
+            #     message=(
+            #         f"Hi {username},\n\n"
+            #         f"Click the link below to verify your email and "
+            #         f"activate your CVDM account:\n\n{verify_url}\n\n"
+            #         f"If you didn't request this, ignore this email."
+            #     ),
+            #     from_email=dj_settings.DEFAULT_FROM_EMAIL,
+            #     recipient_list=[email],
+            #     fail_silently=False,
+            # )
+            send_verification_email(username, email, verify_url)
+            print(">>>>>>>email sent");
 
             return render(
                 request,
