@@ -33,4 +33,5 @@ urlpatterns = [
     path("api/", include("workflow.urls")),
     path("api/", include("notifications.urls")),
     path("dashboard/", include("dashboard.urls")),
+    path("api/", include("ai_review.urls")),
 ]
