@@ -39,7 +39,6 @@ def get_recommended_reviewers(*, content, eligible_reviewers):
             "recommended": False,
         })
 
-   
     ranked.sort(key=lambda r: (-r["expertise_count"], r["workload"]))
 
     if ranked:
