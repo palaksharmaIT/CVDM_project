@@ -1264,6 +1264,24 @@
                 </h3>
 
 
+                {% if recommended_reviewers %}
+
+                    <p class="muted recommended-reviewers-note">
+
+                        Recommended:
+                        {% for r in recommended_reviewers %}
+                            {% if r.recommended %}
+                                {{ r.reviewer.username }}
+                                ({{ r.expertise_count }} past review{{ r.expertise_count|pluralize }}
+                                in this category, {{ r.workload }} pending now)
+                            {% endif %}
+                        {% endfor %}
+
+                    </p>
+
+                {% endif %}
+
+
                 <form method="post">
 
                     {% csrf_token %}
@@ -1279,10 +1297,10 @@
                         </option>
 
 
-                        {% for reviewer in eligible_reviewers %}
+                        {% for r in recommended_reviewers %}
 
-                            <option value="{{ reviewer.id }}">
-                                {{ reviewer.username }}
+                            <option value="{{ r.reviewer.id }}">
+                                {{ r.reviewer.username }}{% if r.recommended %} (recommended){% endif %}
                             </option>
 
                         {% endfor %}
@@ -2715,6 +2733,43 @@
         }
 
 
+        .ai-issues-list {
+            max-height: 260px;
+            overflow-y: auto;
+        }
+
+
+        .ai-issues-list.expanded {
+            max-height: 480px;
+        }
+
+
+        .ai-issue-extra {
+            display: none;
+        }
+
+
+        .ai-issues-list.expanded .ai-issue-extra {
+            display: block;
+        }
+
+
+        .ai-issues-toggle {
+            background: none;
+            border: none;
+            color: var(--blue);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 6px 0 0;
+        }
+
+
+        .ai-issues-toggle:hover {
+            text-decoration: underline;
+        }
+
+
         .ai-issue-type {
             display: block;
             font-family: var(--font-mono);
@@ -3474,26 +3529,47 @@
                     </p>
 
 
-                    {% for issue in latest_ai_review.issues %}
+                    {% if latest_ai_review.issues %}
 
-                        <div class="ai-issue">
+                        <div class="ai-issues-list" id="ai-issues-list">
 
-                            <span class="ai-issue-type">
-                                {{ issue.type }}
-                            </span>
+                            {% for issue in latest_ai_review.issues %}
 
-                            {{ issue.message }}
+                                <div class="ai-issue{% if forloop.counter > 3 %} ai-issue-extra{% endif %}">
+
+                                    <span class="ai-issue-type">
+                                        {{ issue.type }}
+                                    </span>
+
+                                    {{ issue.message }}
+
+                                </div>
+
+                            {% endfor %}
 
                         </div>
 
 
-                    {% empty %}
+                        {% if latest_ai_review.issues|length > 3 %}
+
+                            <button
+                                type="button"
+                                class="ai-issues-toggle"
+                                id="ai-issues-toggle"
+                                onclick="toggleAIIssues()"
+                            >
+                                Show all {{ latest_ai_review.issues|length }} issues
+                            </button>
+
+                        {% endif %}
+
+                    {% else %}
 
                         <p class="muted">
                             No issues flagged.
                         </p>
 
-                    {% endfor %}
+                    {% endif %}
 
 
                 {% elif latest_ai_review and latest_ai_review.status == "failed" %}
@@ -3991,6 +4067,23 @@
 <script>
 
     const contentId = "{{ content.id }}";
+
+
+    /* =====================================================
+       AI PRE-REVIEW ISSUES TOGGLE
+    ===================================================== */
+
+    function toggleAIIssues() {
+
+        const list = document.getElementById("ai-issues-list");
+        const toggleBtn = document.getElementById("ai-issues-toggle");
+
+        const expanded = list.classList.toggle("expanded");
+
+        toggleBtn.textContent = expanded
+            ? "Show less"
+            : toggleBtn.dataset.showAllLabel;
+    }
 
 
     /* =====================================================
